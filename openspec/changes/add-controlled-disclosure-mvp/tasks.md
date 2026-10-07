@@ -13,7 +13,7 @@
 - [ ] 1.2 [OPS] (А) `docker-compose.yml`: nginx, api, worker, postgres, redis, mailpit; сети `edge` и `data (internal)`
 - [ ] 1.3 [OPS] (А) `make secrets` — генерация `.env` со случайными ключами; `.env` в `.gitignore`; pre-commit с gitleaks
 - [ ] 1.4 [OPS] (А) mkcert-сертификат для `localhost`, nginx с TLS и заголовками безопасности
-- [ ] 1.5 [BE] (Д) FastAPI-скелет: конфиг (pydantic-settings, fail-fast на пустых секретах), `/healthz`, единый формат ошибок, `request_id`
+- [ ] 1.5 [BE] (А) FastAPI-скелет: конфиг (pydantic-settings, fail-fast на пустых секретах), `/healthz`, единый формат ошибок, `request_id`
 - [ ] 1.6 [BE] (Д) SQLAlchemy 2 + Alembic; роли БД `app_owner`/`app_rw`; первая миграция со всеми таблицами из design §2
 - [ ] 1.7 [BE] (Д) Триггер и REVOKE для `audit_events`
 - [ ] 1.8 [FE] (А) Vite + React + TS, роутинг (публичная зона / viewer / staff), TanStack Query, API-клиент с CSRF-заголовком
@@ -31,13 +31,13 @@
 - [ ] 3.1 [BE] (Д) CLI `create-staff` (argon2id, генерация TOTP-секрета, вывод otpauth URI)
 - [ ] 3.2 [BE] (Д) `POST /staff/auth/login` (пароль+TOTP, dummy-hash, lockout, защита от повтора TOTP), `logout`, `me`
 - [ ] 3.3 [BE] (Д) Деактивация/активация reviewer admin'ом с удалением сессий
-- [ ] 3.4 [FE] (А) Страница входа staff, обработка 401/423/429, автологаут по idle
-- [ ] 3.5 [SEC] (А) Тесты TC-AUTH-01..05
+- [ ] 3.4 [FE] (Д) Страница входа staff, обработка 401/423/429, автологаут по idle
+- [ ] 3.5 [SEC] (Д) Тесты TC-AUTH-01..05
 
 ## 4. Карточки и материалы (Н2)
-- [ ] 4.1 [BE] (Д) CRUD карточек (draft/publish/archive), Pydantic `extra="forbid"`, enum-поля
+- [ ] 4.1 [BE] (А) CRUD карточек (draft/publish/archive), Pydantic `extra="forbid"`, enum-поля
 - [ ] 4.2 [BE] (А) Линтер утечек teaser (нормализация, транслит, regex домен/e-mail/телефон/ИНН) + k-предупреждение
-- [ ] 4.3 [BE] (Д) Загрузка материалов: magic bytes (python-magic/filetype), лимиты, проверка PDF на JS/вложения/шифрование (PyMuPDF), случайный `storage_key`, SHA-256
+- [ ] 4.3 [BE] (А) Загрузка материалов: magic bytes (python-magic/filetype), лимиты, проверка PDF на JS/вложения/шифрование (PyMuPDF), случайный `storage_key`, SHA-256
 - [ ] 4.4 [BE] (А) `make seed`: синтетические карточки и PDF (Faker + reportlab, плашка SYNTHETIC)
 - [ ] 4.5 [FE] (А) Админка: список карточек, форма карточки (react-hook-form + zod), загрузка материалов, вывод нарушений линтера, подтверждение k-предупреждения
 - [ ] 4.6 [SEC] (А) Тесты TC-CARD-04, загрузка с двойным расширением/подменой MIME/размером
@@ -49,27 +49,27 @@
 - [ ] 5.4 [SEC] (А) Тесты TC-CAT-01..03, TC-API-02..03, TC-RL-01, TC-LEAK-05
 
 ## 6. Решения reviewer (Н3)
-- [ ] 6.1 [BE] (А) Очередь запросов с маскированием e-mail; stats для admin
+- [ ] 6.1 [BE] (Д) Очередь запросов с маскированием e-mail; stats для admin
 - [ ] 6.2 [BE] (Д) Решение approve/reject в одной транзакции: decision + grant + magic_link; UNIQUE на request_id
 - [ ] 6.3 [BE] (Д) Отправка писем через Mailpit (шаблоны без confidential-данных)
 - [ ] 6.4 [BE] (Д) Список grants, revoke (удаление сессий), сокращение срока, перевыпуск ссылки
-- [ ] 6.5 [FE] (А) Интерфейс reviewer: очередь, карточка запроса, форма решения (выбор материалов, TTL, лимит, скачивание), активные grants, отзыв
-- [ ] 6.6 [SEC] (А) Тесты TC-RBAC-02..04, TC-VIEW-07, гонка решений
+- [ ] 6.5 [FE] (Д) Интерфейс reviewer: очередь, карточка запроса, форма решения (выбор материалов, TTL, лимит, скачивание), активные grants, отзыв
+- [ ] 6.6 [SEC] (Д) Тесты TC-RBAC-02..04, TC-VIEW-07, гонка решений
 
 ## 7. Доступ viewer и защищённый контент (Н3)
-- [ ] 7.1 [BE] (Д) `POST /access/redeem` — атомарный одноразовый обмен, cookie, аудит
-- [ ] 7.2 [BE] (Д) Проверка grant на каждый запрос viewer (dependency), атомарный счётчик просмотров
+- [ ] 7.1 [BE] (А) `POST /access/redeem` — атомарный одноразовый обмен, cookie, аудит
+- [ ] 7.2 [BE] (А) Проверка grant на каждый запрос viewer (dependency), атомарный счётчик просмотров
 - [ ] 7.3 [BE] (А) Рендер страниц PyMuPDF → PNG, watermark Pillow (псевдоним, время, WM-код HMAC), no-store
 - [ ] 7.4 [BE] (А) Скачивание watermarked PDF при `allow_download`
-- [ ] 7.5 [BE] (Д) Инструмент «Trace watermark» для admin
+- [ ] 7.5 [BE] (А) Инструмент «Trace watermark» для admin
 - [ ] 7.6 [FE] (А) `/access` — чтение fragment, `replaceState`, redeem, ошибки 410/429
 - [ ] 7.7 [FE] (А) Просмотрщик: расширенная карточка, постраничный просмотр, баннер о watermark, таймер срока, logout
 - [ ] 7.8 [SEC] (А) Тесты TC-LINK-02..05, TC-VIEW-05..08, TC-WM-01..03, TC-RACE-01..02, TC-LEAK-01..04, TC-RL-02
 
 ## 8. Аудит и retention (Н3–Н4)
 - [ ] 8.1 [BE] (А) Просмотр аудита (фильтры, пагинация), CSV-экспорт, `audit/verify`
-- [ ] 8.2 [BE] (Д) Retention-джобы в worker + `make retention-run NOW_OFFSET=...`
-- [ ] 8.3 [BE] (Д) Ручное обезличивание запроса и удаление материала
+- [ ] 8.2 [BE] (А) Retention-джобы в worker + `make retention-run NOW_OFFSET=...`
+- [ ] 8.3 [BE] (А) Ручное обезличивание запроса и удаление материала
 - [ ] 8.4 [FE] (А) Страница аудита и trace watermark в админке
 - [ ] 8.5 [SEC] (А) Тесты TC-AUD-02..03, TC-LEAK-03, retention-сценарии
 
