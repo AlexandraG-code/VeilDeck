@@ -1,0 +1,65 @@
+name: Publish images
+
+# Образы собираются на GitHub и кладутся в ghcr.io: сервер в РФ не обращается к Docker Hub (там он недоступен без VPN).
+# Запускается только на main и только после зелёного CI. Права packages: write есть только у этого workflow.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+  PREFIX: ghcr.io/alexandrag-code/veildeck
+  SOURCE: https://github.com/AlexandraG-code/VeilDeck
+
+jobs:
+  publish:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Короткий хеш коммита
+        id: sha
+        run: echo "short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Образ api
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.PREFIX }}-api:latest
+            ${{ env.PREFIX }}-api:sha-${{ steps.sha.outputs.short }}
+          labels: org.opencontainers.image.source=${{ env.SOURCE }}
+      - name: Образ web (nginx + SPA)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: frontend/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.PREFIX }}-web:latest
+            ${{ env.PREFIX }}-web:sha-${{ steps.sha.outputs.short }}
+          labels: org.opencontainers.image.source=${{ env.SOURCE }}
+      - name: Зеркала postgres, redis, mailpit (копия манифеста без пересборки)
+        run: |
+          docker buildx imagetools create --tag "$PREFIX-postgres:16-alpine" docker.io/library/postgres:16-alpine
+          docker buildx imagetools create --tag "$PREFIX-redis:7-alpine" docker.io/library/redis:7-alpine
+          docker buildx imagetools create --tag "$PREFIX-mailpit:v1.31.4" docker.io/axllent/mailpit:v1.31.4

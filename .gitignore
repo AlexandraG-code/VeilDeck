@@ -46,3 +46,5 @@ uploads/
 
 # Личные настройки агентов (модели, ключи, пути) — не в git
 CLAUDE.local.md
+
+deploy/htpasswd

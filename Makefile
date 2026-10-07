@@ -1,4 +1,4 @@
-.PHONY: secrets certs up down seed retention-run
+.PHONY: secrets certs certs-ip basic-auth deploy up down seed retention-run
 
 SECRETS_FILE := .env
 
@@ -20,6 +20,27 @@ certs:
 			-keyout deploy/certs/localhost-key.pem -out deploy/certs/localhost.pem 2>/dev/null; \
 	fi
 	@chmod 600 deploy/certs/localhost-key.pem
+
+# Самоподписанный сертификат под IP сервера (пока нет домена): make certs-ip IP=203.0.113.10
+certs-ip:
+	@test -n "$(IP)" || { echo "Укажите IP: make certs-ip IP=1.2.3.4"; exit 1; }
+	@mkdir -p deploy/certs
+	@openssl req -x509 -newkey rsa:2048 -nodes -days 365 -subj "/CN=$(IP)" -addext "subjectAltName=IP:$(IP),DNS:localhost" \
+		-keyout deploy/certs/localhost-key.pem -out deploy/certs/localhost.pem 2>/dev/null
+	@chmod 600 deploy/certs/localhost-key.pem
+	@echo "Сертификат для $(IP) создан в deploy/certs (самоподписанный: браузер предупредит)"
+
+# Пользователь для закрытого доступа (basic auth): make basic-auth NAME=demo (пароль спросит)
+basic-auth:
+	@test -n "$(NAME)" || { echo "Укажите пользователя: make basic-auth NAME=demo"; exit 1; }
+	@printf "%s:%s\n" "$(NAME)" "$$(openssl passwd -apr1)" > deploy/htpasswd
+	@chmod 600 deploy/htpasswd
+	@echo "deploy/htpasswd создан"
+
+# Обновление на сервере: образы берутся из ghcr.io, сборки на сервере нет.
+deploy:
+	docker compose -f deploy/docker-compose.prod.yml --env-file .env pull
+	docker compose -f deploy/docker-compose.prod.yml --env-file .env up -d
 
 up: certs
 	docker compose -f deploy/docker-compose.yml --env-file .env up -d --build
