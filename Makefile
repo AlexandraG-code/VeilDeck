@@ -1,4 +1,4 @@
-.PHONY: secrets up down seed retention-run
+.PHONY: secrets certs up down seed retention-run
 
 SECRETS_FILE := .env
 
@@ -9,7 +9,19 @@ secrets:
 	@chmod 600 $(SECRETS_FILE)
 	@echo "Создан $(SECRETS_FILE)"
 
-up:
+# Сертификат для localhost: mkcert, если установлен (доверенный), иначе самоподписанный openssl (браузер предупредит).
+certs:
+	@mkdir -p deploy/certs
+	@if command -v mkcert >/dev/null 2>&1; then \
+		mkcert -cert-file deploy/certs/localhost.pem -key-file deploy/certs/localhost-key.pem localhost 127.0.0.1 ::1; \
+	else \
+		echo "mkcert не найден: самоподписанный сертификат (brew install mkcert && mkcert -install для доверенного)"; \
+		openssl req -x509 -newkey rsa:2048 -nodes -days 30 -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1" \
+			-keyout deploy/certs/localhost-key.pem -out deploy/certs/localhost.pem 2>/dev/null; \
+	fi
+	@chmod 600 deploy/certs/localhost-key.pem
+
+up: certs
 	docker compose -f deploy/docker-compose.yml --env-file .env up -d --build
 
 down:
