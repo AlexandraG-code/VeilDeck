@@ -1,0 +1,11 @@
+# Защищённые зоны: владелец обязан одобрить PR. Остальное ревьюит вторая участница.
+/deploy/                            @AlexandraG-code
+/.github/                           @AlexandraG-code
+/Makefile                           @AlexandraG-code
+/docker-compose.yml                 @AlexandraG-code
+/.env.example                       @AlexandraG-code
+/backend/migrations/                @LediDi060
+/backend/app/auth/                  @LediDi060
+/backend/app/security/              @LediDi060
+/openspec/                          @AlexandraG-code @LediDi060
+/AGENTS.md                          @AlexandraG-code @LediDi060

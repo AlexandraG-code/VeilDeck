@@ -22,8 +22,8 @@ VeilDeck — учебный демонстрационный MVP «Confidential 
 - Все контроли безопасности — на сервере. Скрытие элемента в UI не контроль доступа.
 - Криптография и аутентификация — только проверенные библиотеки (argon2-cffi, cryptography, pyotp). Самописного нет.
 - Секреты не попадают в репозиторий, образы и логи. Приложение не стартует без секретов или с дефолтными.
-- Репозиторий приватный. Бриф, код, findings, скриншоты не публиковать без письменного согласия SMI.
-- Тестировать только свой локальный стенд.
+- Кейс учебный, данных заказчика и NDA нет; репозиторий может быть публичным, но в нём только синтетика и никаких секретов.
+- Тестировать (ZAP, Burp, сканеры) только свой локальный стенд. Деплой на хостинг — только с закрытым доступом (basic auth или allowlist по IP) и синтетическими данными.
 - Запуск через Docker Compose по README за ≤ 30 минут в чистой среде.
 
 ## 3. Ключевые решения (обязательны)
@@ -51,7 +51,9 @@ VeilDeck — учебный демонстрационный MVP «Confidential 
 
 ```
 backend/   FastAPI-приложение, Alembic, тесты (pytest)
+  tests/security/   негативные security-тесты TC-* (внешние, через API; владелец — Александра)
 frontend/  SPA (React + TS + Vite)
+  src/api/generated/   типы и клиент из docs/api/openapi.json — АВТОГЕНЕРАЦИЯ, руками не править
 deploy/    docker-compose, nginx, Dockerfile
 docs/      docs/security/, docs/api/openapi.json (экспорт в CI)
 openspec/  требования
@@ -75,7 +77,7 @@ Makefile   make secrets | seed | retention-run NOW_OFFSET=31d
 
 Эталон: `/Users/alex/WebstormProjects/notifierFrontend` (его `AGENTS.md` — подробные правила). Переносится универсальное ядро; GREEN-API-специфика не переносится.
 
-**Стек:** React 19, TypeScript, Vite, antd 6 + `@ant-design/icons`, zustand 5, react-router-dom 7 (`createHashRouter` не нужен — VeilDeck за nginx, используем `createBrowserRouter`), axios, i18next + react-i18next, SCSS Modules (sass), vitest + Testing Library, Playwright, eslint (flat) + typescript-eslint, prettier + `@trivago/prettier-plugin-sort-imports`. Пакетный менеджер — yarn. Redux и RTK Query не используем.
+**Стек:** React 19, TypeScript, Vite, antd 6 + `@ant-design/icons`, TanStack Query 5 (серверный стейт) + zustand 5 (клиентский стейт), react-router-dom 7 (`createHashRouter` не нужен — VeilDeck за nginx, используем `createBrowserRouter`), axios, i18next + react-i18next, SCSS Modules (sass), vitest + Testing Library, Playwright, eslint (flat) + typescript-eslint, prettier + `@trivago/prettier-plugin-sort-imports`. Пакетный менеджер — yarn. Redux и RTK Query не используем: роль RTK Query играет TanStack Query.
 
 **Слои FSD** (импорт только вниз): `app → pages → widgets → features → entities → shared`.
 ```
@@ -90,7 +92,9 @@ src/
 ```
 Слайс: `api/` · `model/` (сторы, типы, enums, constants, хуки) · `ui/` · `lib/` · `index.ts` (публичный API). Чужой слайс импортируется только через его `index.ts`.
 
-**Алиасы:** `@app @pages @widgets @features @entities @shared` — объявляются в `vite.config.ts` (`resolve.alias`) и `tsconfig.app.json` (`paths`); vitest наследует через `mergeConfig`.
+**Сгенерированный API:** `src/api/generated/` лежит вне слоёв FSD, алиас `@api`. Генерируется orval из `docs/api/openapi.json`: типы, axios-клиент и хуки TanStack Query, первой строкой каждого файла — «АВТОГЕНЕРАЦИЯ, НЕ ПРАВИТЬ»; в игноре eslint и prettier. Сгенерированные хуки используются в `model/` и `ui/` слайсов; запросы руками не пишутся. Пока бэка нет — моки MSW по той же схеме.
+
+**Алиасы:** `@app @pages @widgets @features @entities @shared @api` — объявляются в `vite.config.ts` (`resolve.alias`) и `tsconfig.app.json` (`paths`); vitest наследует через `mergeConfig`.
 
 **Конвенции кода:**
 - Типы — в `types.ts`, enum — в `enums.ts`, константы — в `constants.ts`; inline-типы в сигнатурах запрещены. Числовые литералы — именованные константы. JSDoc на каждой функции модуля. Строка ≤ 120 символов.
@@ -98,9 +102,10 @@ src/
 - Порядок в теле компонента/хука: сторы, `useState`, библиотечные хуки, свои хуки, вычисляемое, `useMemo`, `useCallback`, `useEffect`, обработчики, `return`. В `useEffect` только вызовы функций.
 - Стили: `@use '@shared/styles' as *;`, размеры через `rem()`, цвета только из токенов темы (`var(--color-*)`, `getAntdTheme`), хекс-цветов в компонентах нет.
 - i18n: текстов в коде нет; `shared/i18n/locales/<страница>/<ru|en>/<страница>.json`; новое пространство — в enum `Namespace` и оба json; загрузка через `loadNamespaces` в `lazy` маршрута.
-- Ошибки: действия сторов с запросами оборачиваются в `runAsyncAction`; показывает ошибки только `ErrorNotifier`. Прямые `notification.error` / `message.error` запрещены.
-- API: в `shared/api` только общий клиент (axios, таймаут из env). Сервисы `<имя>.service.ts` лежат в `api/` слайса-потребителя, один запрос на метод, без `if`/`try`/`throw`; проверки и тексты ошибок — в сторе или хуке фичи.
-- Состояние — zustand; `persist` не использовать для чувствительных данных.
+- Ошибки: запросы идут через TanStack Query, ошибки ловит глобальный `onError` у `QueryCache`/`MutationCache`; показывает их только `ErrorNotifier`. Действия zustand-сторов с запросами оборачиваются в `runAsyncAction`. Прямые `notification.error` / `message.error` запрещены.
+- API: в `shared/api` только общий axios-инстанс (таймаут из env, CSRF-заголовок) — orval использует его как mutator. Ручных `*.service.ts` нет; обёртки над сгенерированными хуками (ключи инвалидации, тексты ошибок) — в `model/` слайса.
+- Серверные данные (очередь, grants, карточки) живут только в кэше TanStack Query и не дублируются в zustand; после approve/revoke/смены срока — инвалидация ключей.
+- Клиентское состояние (UI, текущий пользователь) — zustand; `persist` не использовать для чувствительных данных.
 - Runtime-конфиг без `VITE_*`: `env-config.ts` (из `env-config.ts.sample`) → `window._env_`; CSP формируется Vite-плагином.
 - Фигурные скобки у `if/else/for/while` обязательны (`curly: all`). `import type`, `verbatimModuleSyntax`.
 
@@ -123,7 +128,7 @@ src/
 - **`validator`** — проверяет каждый diff исполнителей (ТЗ в `<task>`, diff в `<candidate_diff>`). `OK` → принять; `ERROR` → откатить и вернуть исполнителю (до 2 кругов); `NEEDS_ARCHITECT` → `opus-architect`.
 - **`opus-architect`** — заранее, если задача меняет архитектуру, публичные контракты, миграции или авторизацию. На рутину не тратить.
 - **Исполнители** (DeepSeek, GLM) получают узкое ТЗ: какие файлы и функции менять, какой контракт соблюсти, чего не трогать.
-- **Защищённое — только оркестратор:** `context/*.md`, `team.json`, `registry.json`, конфиги сборки и CI, миграции, авторизация, секреты.
+- **Защищённое — только оркестратор своей зоны** (у каждого участника свой оркестратор, см. §11): `context/*.md`, `team.json`, `registry.json`, конфиги сборки и CI, миграции, авторизация, секреты. Исполнители защищённое не трогают; в чужой зоне правка идёт только через PR с ревью владельца (CODEOWNERS).
 - Большие файлы (спеки, PDF, дампы) читаются субагентами с возвратом выжимки.
 
 ## 9. Git
@@ -136,4 +141,23 @@ src/
 - Не логировать токены, session ID, пароли, TOTP, e-mail, purpose, org_name.
 - Не отдавать оригиналы материалов и не принимать `card_id` viewer-а из запроса (он берётся из сессии).
 - Не писать самодельную криптографию, не выключать проверки «на время демо».
-- Не публиковать содержимое проекта вовне.
+- Не класть в репозиторий секреты и реальные данные (даже если репозиторий публичный).
+
+## 11. Работа вдвоём: вертикальные срезы
+
+Александра (`AlexandraG-code`) и Диана (`LediDi060`) берут задачи целиком, фронт + бэк + тесты обоих слоёв. Контракт — `docs/api/openapi.json`, который FastAPI генерирует из кода; клиент и хуки фронта генерируются из него (`src/api/generated/`).
+
+Срезы (после каркаса): вход staff · карточки и материалы · каталог и запросы · решения reviewer · viewer и watermark · аудит и retention. Кто какой берёт — договариваются, прогресс ведётся в GitHub Issues/Projects. Галочки в `tasks.md` ставятся один раз при архивации change (иначе конфликты).
+
+Защищённые зоны (владелец — обязательный ревьюер, см. `.github/CODEOWNERS`):
+- Александра: CI, `deploy/`, `Makefile`, `docker-compose.yml`, `.env.example`, секреты, конфиги сборки.
+- Диана: миграции, авторизация/RBAC, сессии.
+
+Перекрёстное ревью: PR автора всегда смотрит вторая; негативные `TC-*` по спеке она дописывает на ревью (независимая проверка).
+
+Против конфликтов:
+- Все роутеры регистрируются в `main.py` один раз в скелете (пустые); модели — по доменам (`app/cards/models.py`…).
+- Одна миграция на задачу, цепочка линейная; при двух `alembic heads` ребейзит тот, кто мержится вторым.
+- `docs/api/openapi.json` и `src/api/generated/` при конфликте не мержатся руками, а перегенерируются. CI перегенерирует их и падает при расхождении с закоммиченным.
+- Lock-файлы (`yarn.lock`, `uv.lock`) при конфликте пересоздаются командой менеджера.
+- Ветки на одну задачу, PR ≤ ~300 строк, живут 1–2 дня; `git pull --rebase` от `main` каждое утро; merge через squash.
