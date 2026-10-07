@@ -94,6 +94,7 @@
 - [ ] 11.4 [DOC] Data classification, minimisation, retention/deletion matrix
 - [ ] 11.5 [DOC] ASVS traceability matrix: заполнить точные ID v5.0.0-x.y.z, связать риск → требование → контроль → тест → результат
 - [ ] 11.6 [DOC] Risk register, residual risk statement (design §10), decision log, известные ограничения
+- [ ] 11.10 [DOC] Вопросы к SMI вместо юридических выводов: вести `docs/questions-for-smi.md`, отправить куратору до конца Н2, ответы занести в decision log
 - [ ] 11.7 [DOC] Сценарий демо 15–20 мин: каталог → запрос → одобрение → письмо в Mailpit → просмотр с watermark → попытка повторной ссылки → IDOR → отзыв → аудит и trace watermark → CI блокирует секрет
 - [ ] 11.8 [DOC] Презентация и handover-пакет
 - [ ] 11.9 [DOC] Журнал вклада: роли из брифа §8 и фактический вклад каждого участника (коммиты, PR, issues, документы), обновляется еженедельно (критерий «Командный и индивидуальный вклад», 10%)
