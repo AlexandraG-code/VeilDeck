@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+sqlalchemy[asyncio]
+asyncpg
+alembic
+redis
+structlog
+argon2-cffi
+cryptography
+pyotp
+pymupdf
+pillow
