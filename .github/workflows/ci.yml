@@ -104,13 +104,9 @@ jobs:
       - name: Semgrep (SAST)
         run: docker run --rm -v "$PWD:/src" semgrep/semgrep:1.97.0 semgrep scan --config p/python --config p/typescript --config p/dockerfile --error --exclude frontend/src/shared/api/generated /src
       - name: Trivy (зависимости, секреты, конфиги; High и Critical блокируют)
-        uses: aquasecurity/trivy-action@v0.33.1
-        with:
-          scan-type: fs
-          scanners: vuln,secret,misconfig
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-          exit-code: "1"
+        run: >
+          docker run --rm -v "$PWD:/src" aquasec/trivy:0.65.0
+          fs --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress /src
       - name: SBOM (Syft, CycloneDX)
         uses: anchore/sbom-action@v0.24.0
         with:
