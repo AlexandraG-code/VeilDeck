@@ -53,7 +53,7 @@ VeilDeck — учебный демонстрационный MVP «Confidential 
 backend/   FastAPI-приложение, Alembic, тесты (pytest)
   tests/security/   негативные security-тесты TC-* (внешние, через API; владелец — Александра)
 frontend/  SPA (React + TS + Vite)
-  src/api/generated/   типы и клиент из docs/api/openapi.json — АВТОГЕНЕРАЦИЯ, руками не править
+  src/shared/api/generated/   типы и клиент из docs/api/openapi.json — АВТОГЕНЕРАЦИЯ, руками не править
 deploy/    docker-compose, nginx, Dockerfile
 docs/      docs/security/, docs/api/openapi.json (экспорт в CI)
 openspec/  требования
@@ -97,9 +97,11 @@ src/
 ```
 Слайс: `api/` · `model/` (сторы, типы, enums, constants, хуки) · `ui/` · `lib/` · `index.ts` (публичный API). Чужой слайс импортируется только через его `index.ts`.
 
-**Сгенерированный API:** `src/api/generated/` лежит вне слоёв FSD, алиас `@api`. Генерируется orval из `docs/api/openapi.json`: типы, axios-клиент и хуки TanStack Query, первой строкой каждого файла — «АВТОГЕНЕРАЦИЯ, НЕ ПРАВИТЬ»; в игноре eslint и prettier. Сгенерированные хуки используются в `model/` и `ui/` слайсов; запросы руками не пишутся. Пока бэка нет — моки MSW по той же схеме.
+**Сгенерированный API:** `src/shared/api/generated/` (слой `shared`, отдельного слоя `api` в FSD нет). Генерируется orval из `docs/api/openapi.json`: типы, axios-клиент и хуки TanStack Query, первой строкой каждого файла — «АВТОГЕНЕРАЦИЯ, НЕ ПРАВИТЬ»; в игноре eslint и prettier. Сгенерированные хуки используются в `model/` и `ui/` слайсов; запросы руками не пишутся. Пока бэка нет — моки MSW по той же схеме.
 
-**Алиасы:** `@app @pages @widgets @features @entities @shared @api` — объявляются в `vite.config.ts` (`resolve.alias`) и `tsconfig.app.json` (`paths`); vitest наследует через `mergeConfig`.
+**Алиасы:** `@app @pages @widgets @features @entities @shared` — объявляются в `vite.config.ts` (`resolve.alias`) и `tsconfig.app.json` (`paths`); vitest наследует через `mergeConfig`.
+
+**Проверка слоёв:** направление импортов FSD (только вниз) и импорт чужого слайса только через `index.ts` проверяет eslint (`no-restricted-imports` в `frontend/eslint.config.js`), падение блокирует CI.
 
 **Конвенции кода:**
 - Типы — в `types.ts`, enum — в `enums.ts`, константы — в `constants.ts`; inline-типы в сигнатурах запрещены. Числовые литералы — именованные константы. JSDoc на каждой функции модуля. Строка ≤ 120 символов.
@@ -184,6 +186,6 @@ src/
 Против конфликтов:
 - Все роутеры регистрируются в `main.py` один раз в скелете (пустые); модели — по доменам (`app/cards/models.py`…).
 - Одна миграция на задачу, цепочка линейная; при двух `alembic heads` ребейзит тот, кто мержится вторым.
-- `docs/api/openapi.json` и `src/api/generated/` при конфликте не мержатся руками, а перегенерируются. CI перегенерирует их и падает при расхождении с закоммиченным.
+- `docs/api/openapi.json` и `src/shared/api/generated/` при конфликте не мержатся руками, а перегенерируются. CI перегенерирует их и падает при расхождении с закоммиченным.
 - Lock-файлы (`yarn.lock`, `backend/requirements*.txt` (pip-compile)) при конфликте пересоздаются командой менеджера.
 - Ветки на одну задачу, PR ≤ ~300 строк, живут 1–2 дня; `git pull --rebase` от `main` каждое утро; merge через squash.

@@ -14,7 +14,6 @@ export default defineConfig({
       '@features': resolvePath('./src/features'),
       '@entities': resolvePath('./src/entities'),
       '@shared': resolvePath('./src/shared'),
-      '@api': resolvePath('./src/api'),
     },
   },
   server: {

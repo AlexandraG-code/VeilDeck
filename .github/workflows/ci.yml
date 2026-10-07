@@ -83,13 +83,13 @@ jobs:
         working-directory: frontend
         run: |
           yarn install --frozen-lockfile
-          rm -rf src/api/generated
+          rm -rf src/shared/api/generated
           yarn api:generate
       - name: Закоммиченные контракт и клиент совпадают с кодом
         run: |
-          git add -N docs/api frontend/src/api/generated
-          git diff --exit-code -- docs/api frontend/src/api/generated \
-            || { echo "::error::openapi.json или frontend/src/api/generated устарели: запустите экспорт и генерацию локально и закоммитьте"; exit 1; }
+          git add -N docs/api frontend/src/shared/api/generated
+          git diff --exit-code -- docs/api frontend/src/shared/api/generated \
+            || { echo "::error::openapi.json или frontend/src/shared/api/generated устарели: запустите экспорт и генерацию локально и закоммитьте"; exit 1; }
 
   security:
     runs-on: ubuntu-latest
@@ -100,7 +100,7 @@ jobs:
       - name: gitleaks (секреты в коде и истории)
         run: docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:v8.21.2 detect --source /repo --redact --verbose
       - name: Semgrep (SAST)
-        run: docker run --rm -v "$PWD:/src" semgrep/semgrep:1.97.0 semgrep scan --config p/python --config p/typescript --config p/dockerfile --error --exclude frontend/src/api/generated /src
+        run: docker run --rm -v "$PWD:/src" semgrep/semgrep:1.97.0 semgrep scan --config p/python --config p/typescript --config p/dockerfile --error --exclude frontend/src/shared/api/generated /src
       - name: Trivy (зависимости, секреты, конфиги; High и Critical блокируют)
         uses: aquasecurity/trivy-action@v0.33.1
         with:

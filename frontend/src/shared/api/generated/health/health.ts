@@ -23,7 +23,7 @@ import type {
   HealthResponse
 } from '../model';
 
-import { apiClient } from '../../../shared/api/client';
+import { apiClient } from '../../client';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];

@@ -1,13 +1,13 @@
 import { defineConfig } from 'orval';
 
-/** Генерация типов и хуков TanStack Query из docs/api/openapi.json (руками src/api/generated не правится). */
+/** Генерация типов и хуков TanStack Query из docs/api/openapi.json (руками src/shared/api/generated не правится). */
 export default defineConfig({
   veildeck: {
     input: '../docs/api/openapi.json',
     output: {
       mode: 'tags-split',
-      target: 'src/api/generated',
-      schemas: 'src/api/generated/model',
+      target: 'src/shared/api/generated',
+      schemas: 'src/shared/api/generated/model',
       client: 'react-query',
       httpClient: 'axios',
       override: {
