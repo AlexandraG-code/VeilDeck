@@ -1,0 +1,41 @@
+# ОС и IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Секреты и окружение
+.env
+.env.*
+!.env.sample
+env-config.ts
+secrets/
+*.pem
+*.key
+deploy/certs/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+playwright-report/
+test-results/
+*.log
+
+# Данные и материалы
+storage/
+uploads/
+*.sqlite3
+
+# Локальные настройки агентов
+.claude/settings.local.json

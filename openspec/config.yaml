@@ -1,0 +1,30 @@
+schema: spec-driven
+
+context: |
+  Учебный MVP кейса B «Confidential Teaser & Controlled Disclosure» для партнёра Smart IMMO Invest (SMI),
+  Проектный практикум магистратуры «Программная инженерия безопасных систем» (УрФУ × Нетология).
+  Пишем все артефакты на русском; ключевые слова OpenSpec (Requirement, Scenario, SHALL/MUST, GIVEN/WHEN/THEN) — на английском.
+
+  Жёсткие ограничения брифа (не обсуждаются):
+  - Демонстрационный MVP в изолированной тестовой среде, не production. Только синтетические данные.
+  - Нет платежей, ЮЗЭДО, production-интеграций, постоянных личных кабинетов для внешних пользователей.
+  - Все security-контроли проверяются server-side; скрытие элемента в UI не считается контролем доступа.
+  - Криптография и аутентификация — только проверенные библиотеки (argon2-cffi, cryptography, pyotp и т.п.), ничего самописного.
+  - Запуск локально через Docker Compose по README за ≤ 30 минут в чистой среде. Секреты не хранятся в репозитории и образах.
+  - API документируется в OpenAPI. Репозиторий приватный; бриф, код, findings и скриншоты нельзя публиковать без письменного согласия SMI.
+  - Тестирование только на собственном локальном стенде; никаких активных проверок систем SMI и третьих лиц.
+  - Ориентиры: OWASP ASVS 5.0.0 (идентификаторы вида v5.0.0-x.x.x), OWASP Top 10:2025, WSTG 4.2, GDPR Art. 5/25/32, CISA Secure by Design.
+
+  Стек: backend Python 3.12 + FastAPI + SQLAlchemy 2 + Alembic + Pydantic v2; PostgreSQL 16; Redis 7;
+  frontend React + TypeScript + Vite + TanStack Query + react-hook-form + zod; nginx как единственная точка входа (same-origin);
+  Mailpit как имитация почты. Watermark: PyMuPDF + Pillow.
+
+rules:
+  proposal:
+    - Явно указывать, что вне scope
+  design:
+    - Каждое security-решение связывать с угрозой из threat model (T-xx) и требованием (SR-xx)
+  tasks:
+    - Помечать исполнителя тегом [BE], [FE], [OPS], [SEC], [DOC]
+    - Задачи не крупнее ~1 рабочего дня
+    - Для каждого security-контроля должна быть задача на негативный тест
