@@ -8,9 +8,10 @@ export const axiosInstance = axios.create({ baseURL: '/', timeout: REQUEST_TIMEO
 /**
  * Mutator для orval: выполняет запрос и возвращает только данные.
  * @param config конфигурация запроса, собранная сгенерированным клиентом
+ * @param options дополнительные опции запроса от хука
  */
-export const apiClient = async <T>(config: AxiosRequestConfig): Promise<T> => {
-  const response = await axiosInstance.request<T>(config);
+export const apiClient = async <T>(config: AxiosRequestConfig, options?: AxiosRequestConfig): Promise<T> => {
+  const response = await axiosInstance.request<T>({ ...config, ...options });
 
   return response.data;
 };

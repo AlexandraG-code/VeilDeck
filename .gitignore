@@ -40,3 +40,6 @@ uploads/
 
 # Локальные настройки агентов
 .claude/settings.local.json
+
+# TypeScript
+*.tsbuildinfo
