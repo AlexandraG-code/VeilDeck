@@ -101,7 +101,7 @@ src/
 
 **Алиасы:** `@app @pages @widgets @features @entities @shared` — объявляются в `vite.config.ts` (`resolve.alias`) и `tsconfig.app.json` (`paths`); vitest наследует через `mergeConfig`.
 
-**Проверка слоёв:** направление импортов FSD (только вниз) и импорт чужого слайса только через `index.ts` проверяет eslint (`no-restricted-imports` в `frontend/eslint.config.js`), падение блокирует CI.
+**Проверка слоёв:** направление импортов FSD (только вниз) и импорт чужого слайса только через `index.ts` проверяет eslint (`no-restricted-imports` в `frontend/eslint.config.js`), падение блокирует CI. Дополнительно архитектуру FSD проверяет Steiger (`yarn steiger`, конфиг `frontend/steiger.config.ts`): слайс без сегментов, лишние публичные API, кросс-импорты внутри слоя. Проверка до коммита фронта: `yarn tsc -b`, `yarn lint`, `yarn steiger`, `yarn format`, `yarn test`.
 
 **Конвенции кода:**
 - Типы — в `types.ts`, enum — в `enums.ts`, константы — в `constants.ts`; inline-типы в сигнатурах запрещены. Числовые литералы — именованные константы. JSDoc на каждой функции модуля. Строка ≤ 120 символов.

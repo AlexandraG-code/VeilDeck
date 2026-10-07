@@ -10,7 +10,8 @@
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "test": "vitest run",
-    "api:generate": "orval --config orval.config.ts"
+    "api:generate": "orval --config orval.config.ts",
+    "steiger": "steiger ./src"
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.4",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@feature-sliced/steiger-plugin": "^0.8.0",
     "@playwright/test": "^1.63.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
@@ -44,6 +46,7 @@
     "orval": "^8.40.0",
     "prettier": "^3.9.9",
     "sass": "^1.105.1",
+    "steiger": "^0.7.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.71.1",
     "vite": "^8.3.3",

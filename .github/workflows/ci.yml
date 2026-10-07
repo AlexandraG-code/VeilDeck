@@ -55,6 +55,8 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn tsc -b
       - run: yarn lint
+      - name: Архитектура FSD (Steiger)
+        run: yarn steiger
       - run: yarn format
       - run: yarn test
       - run: yarn build
