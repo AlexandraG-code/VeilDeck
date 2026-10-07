@@ -81,21 +81,21 @@
 - [ ] 9.5 [OPS] (А) Экспорт OpenAPI в `docs/api/openapi.json` в CI
 
 ## 10. Ручное тестирование безопасности (Н4)
-- [ ] 10.1 [SEC] (А) Test plan по WSTG 4.2 (authn, authz, session, input validation, business logic, client-side)
-- [ ] 10.2 [SEC] (А) Прогон OWASP ZAP baseline + ручные проверки в Burp/ZAP по abuse cases из threat model
-- [ ] 10.3 [SEC] (А) Отчёт: findings, severity, remediation, повторная проверка
-- [ ] 10.4 [SEC] (А) Итоговый triage-отчёт: каждый finding классифицирован (исправлен / принят с обоснованием / отложен); открытых Critical/High нет (критерий приёмки, бриф с. 9)
-- [ ] 10.5 [SEC] (А) Проверка дизайна по OWASP Top 10:2025 и принципам CISA Secure by Design: таблица «категория/принцип → как закрыто → где проверено» в `docs/security/`
+- [ ] 10.1 [SEC] (Д) Test plan по WSTG 4.2 (authn, authz, session, input validation, business logic, client-side)
+- [ ] 10.2 [SEC] (А+Д) Прогон OWASP ZAP baseline + ручные проверки в Burp/ZAP по abuse cases из threat model
+- [ ] 10.3 [SEC] (Д) Отчёт: findings, severity, remediation, повторная проверка
+- [ ] 10.4 [SEC] (А+Д) Итоговый triage-отчёт: каждый finding классифицирован (исправлен / принят с обоснованием / отложен); открытых Critical/High нет (критерий приёмки, бриф с. 9)
+- [ ] 10.5 [SEC] (Д) Проверка дизайна по OWASP Top 10:2025 и принципам CISA Secure by Design: таблица «категория/принцип → как закрыто → где проверено» в `docs/security/`
 
 ## 11. Документация и сдача (Н4)
 - [ ] 11.1 [DOC] (А) README: запуск ≤ 30 мин с нуля (проверить на чистой машине/VM), assumptions, границы scope
 - [ ] 11.2 [DOC] (Д) Архитектурная схема, DFD (уровни 0 и 1), trust boundaries, модель данных, матрица доступа (из design.md)
-- [ ] 11.3 [DOC] (А) Threat model ≥ 12 угроз с приоритетом и планом обработки (design §5 → отдельный документ)
+- [ ] 11.3 [DOC] (Д) Threat model ≥ 12 угроз с приоритетом и планом обработки (design §5 → отдельный документ)
 - [ ] 11.4 [DOC] (Д) Data classification, minimisation, retention/deletion matrix
-- [ ] 11.5 [DOC] (А) ASVS traceability matrix: заполнить точные ID v5.0.0-x.y.z, связать риск → требование → контроль → тест → результат
+- [ ] 11.5 [DOC] (Д) ASVS traceability matrix: заполнить точные ID v5.0.0-x.y.z, связать риск → требование → контроль → тест → результат
 - [ ] 11.6 [DOC] (Д) Risk register, residual risk statement (design §10), decision log, известные ограничения
-- [ ] 11.10 [DOC] (А) Вопросы к SMI вместо юридических выводов: вести `docs/questions-for-smi.md`, отправить куратору до конца Н2, ответы занести в decision log
+- [ ] 11.10 [DOC] (Д) Вопросы к SMI вместо юридических выводов: вести `docs/questions-for-smi.md`, отправить куратору до конца Н2, ответы занести в decision log
 - [ ] 11.7 [DOC] (А) Сценарий демо 15–20 мин: каталог → запрос → одобрение → письмо в Mailpit → просмотр с watermark → попытка повторной ссылки → IDOR → отзыв → аудит и trace watermark → CI блокирует секрет
 - [ ] 11.8 [DOC] (А+Д) Презентация и handover-пакет
-- [ ] 11.9 [DOC] (А) Журнал вклада: роли из брифа §8 и фактический вклад каждого участника (коммиты, PR, issues, документы), обновляется еженедельно (критерий «Командный и индивидуальный вклад», 10%)
+- [ ] 11.9 [DOC] (Д) Журнал вклада: роли из брифа §8 и фактический вклад каждого участника (коммиты, PR, issues, документы), обновляется еженедельно (критерий «Командный и индивидуальный вклад», 10%)
 
