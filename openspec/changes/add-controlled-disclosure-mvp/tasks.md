@@ -74,7 +74,7 @@
 - [ ] 8.5 [SEC] (А) Тесты TC-AUD-02..03, TC-LEAK-03, retention-сценарии
 
 ## 9. CI/CD (Н2–Н4, параллельно)
-- [ ] 9.1 [OPS] (А) Pipeline: lint (ruff, eslint), тесты (pytest, vitest), Semgrep, Bandit, pip-audit, npm audit, gitleaks, Trivy, Syft SBOM
+- [ ] 9.1 [OPS] (А) Pipeline: lint (ruff, eslint), `lint-imports` (архитектурные контракты бэкенда), тесты (pytest, vitest), Semgrep, Bandit, pip-audit, npm audit, gitleaks, Trivy, Syft SBOM
 - [ ] 9.2 [OPS] (А) Release gate: High/Critical блокируют merge; `security/exceptions.yaml` с owner/обоснованием/сроком
 - [ ] 9.3 [OPS] (А) Минимальные permissions CI, нет секретов в PR из форков, срок хранения артефактов 14 дней
 - [ ] 9.4 [SEC] (А) Демонстрация: hard-coded secret блокирует PR; уязвимая зависимость → finding → fix → зелёный прогон

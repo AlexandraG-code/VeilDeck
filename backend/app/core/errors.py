@@ -1,24 +1,23 @@
-"""Единый формат ошибок {"error": {"code", "message", "request_id"}} без стек-трейсов."""
+"""Перевод исключений в HTTP: единый формат {"error": {"code", "message", "request_id"}} без стек-трейсов."""
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.core.exceptions import Conflict, DomainError, Forbidden, Gone, NotFound, RateLimited, Unauthorized
 from app.core.request_id import get_request_id
 
 HTTP_INTERNAL_ERROR = 500
 VALIDATION_STATUS = 422
-
-
-class AppError(Exception):
-    """Доменная ошибка с кодом, понятным клиенту."""
-
-    def __init__(self, status_code: int, code: str, message: str) -> None:
-        self.status_code = status_code
-        self.code = code
-        self.message = message
-        super().__init__(message)
+STATUS_BY_ERROR: dict[type[DomainError], int] = {
+    Unauthorized: 401,
+    Forbidden: 403,
+    NotFound: 404,
+    Conflict: 409,
+    Gone: 410,
+    RateLimited: 429,
+}
 
 
 def error_response(status_code: int, code: str, message: str) -> JSONResponse:
@@ -30,9 +29,13 @@ def error_response(status_code: int, code: str, message: str) -> JSONResponse:
 def register_error_handlers(app: FastAPI) -> None:
     """Подключает обработчики, скрывающие внутренние детали."""
 
-    @app.exception_handler(AppError)
-    async def _app_error(_: Request, exc: AppError) -> JSONResponse:
-        return error_response(exc.status_code, exc.code, exc.message)
+    @app.exception_handler(DomainError)
+    async def _domain_error(_: Request, exc: DomainError) -> JSONResponse:
+        status = STATUS_BY_ERROR.get(type(exc), HTTP_INTERNAL_ERROR)
+        response = error_response(status, exc.code, exc.message)
+        if isinstance(exc, RateLimited):
+            response.headers["Retry-After"] = str(exc.retry_after)
+        return response
 
     @app.exception_handler(StarletteHTTPException)
     async def _http_error(_: Request, exc: StarletteHTTPException) -> JSONResponse:

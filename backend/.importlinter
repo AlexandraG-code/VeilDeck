@@ -1,0 +1,109 @@
+[importlinter]
+root_package = app
+include_external_packages = True
+
+# Граф доменов сверху вниз: верхние зависят от нижних, импорт вверх запрещён (нет циклов между срезами).
+[importlinter:contract:domains]
+name = Зависимости между доменами идут только вниз
+type = layers
+layers =
+    app.review | app.access | app.content
+    app.grants | app.requests
+    app.cards | app.catalog
+    app.auth
+    app.audit
+    app.core
+
+# Внутри домена: router -> service -> repository -> models.
+[importlinter:contract:layers-in-domain]
+name = Слои внутри домена
+type = layers
+containers =
+    app.access
+    app.audit
+    app.auth
+    app.cards
+    app.catalog
+    app.content
+    app.grants
+    app.requests
+    app.review
+layers =
+    router
+    service
+    repository
+    models
+
+[importlinter:contract:no-http-in-business]
+name = Бизнес-слой и ядро не знают про HTTP-фреймворк
+type = forbidden
+source_modules =
+    app.access.service
+    app.access.repository
+    app.access.models
+    app.audit.service
+    app.audit.repository
+    app.audit.models
+    app.auth.service
+    app.auth.repository
+    app.auth.models
+    app.cards.service
+    app.cards.repository
+    app.cards.models
+    app.catalog.service
+    app.catalog.repository
+    app.catalog.models
+    app.content.service
+    app.content.repository
+    app.content.models
+    app.grants.service
+    app.grants.repository
+    app.grants.models
+    app.requests.service
+    app.requests.repository
+    app.requests.models
+    app.review.service
+    app.review.repository
+    app.review.models
+    app.core.exceptions
+    app.core.principal
+forbidden_modules =
+    fastapi
+    starlette
+
+[importlinter:contract:no-foreign-storage]
+name = Чужие repository и models не импортируются
+type = forbidden
+source_modules =
+    app.access
+    app.content
+    app.review
+forbidden_modules =
+    app.grants.repository
+    app.grants.models
+    app.requests.repository
+    app.requests.models
+    app.cards.repository
+    app.cards.models
+    app.auth.repository
+    app.auth.models
+    app.audit.repository
+    app.audit.models
+
+[importlinter:contract:domains-not-import-api]
+name = Домены не импортируют api и main
+type = forbidden
+source_modules =
+    app.access
+    app.audit
+    app.auth
+    app.cards
+    app.catalog
+    app.content
+    app.grants
+    app.requests
+    app.review
+    app.core
+forbidden_modules =
+    app.api
+    app.main

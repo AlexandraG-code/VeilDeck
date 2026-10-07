@@ -41,7 +41,9 @@ cffi==2.1.1
 charset-normalizer==3.5.2
     # via requests
 click==8.5.0
-    # via uvicorn
+    # via
+    #   import-linter
+    #   uvicorn
 cryptography==50.0.2
     # via -r requirements.in
 cyclonedx-python-lib==11.12.0
@@ -54,6 +56,8 @@ filelock==4.0.12
     # via cachecontrol
 greenlet==3.5.6
     # via sqlalchemy
+grimp==3.17
+    # via import-linter
 h11==0.16.0
     # via
     #   httpcore
@@ -69,6 +73,8 @@ idna==3.20
     #   anyio
     #   httpx
     #   requests
+import-linter==2.15
+    # via -r requirements-dev.in
 iniconfig==2.3.1
     # via pytest
 license-expression==30.4.4
@@ -150,6 +156,7 @@ requests==2.34.2
 rich==15.0.0
     # via
     #   bandit
+    #   import-linter
     #   pip-audit
 ruff==0.16.10
     # via -r requirements-dev.in
@@ -174,6 +181,7 @@ typing-extensions==4.16.0
     #   alembic
     #   anyio
     #   fastapi
+    #   import-linter
     #   opentelemetry-api
     #   pydantic
     #   pydantic-core
