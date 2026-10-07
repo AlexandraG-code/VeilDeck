@@ -81,6 +81,7 @@
 - [ ] 9.3 [OPS] (А) Минимальные permissions CI, нет секретов в PR из форков, срок хранения артефактов 14 дней
 - [ ] 9.4 [SEC] (А) Демонстрация: hard-coded secret блокирует PR; уязвимая зависимость → finding → fix → зелёный прогон
 - [ ] 9.5 [OPS] (А) Экспорт OpenAPI в `docs/api/openapi.json` в CI
+- [ ] 9.6 [OPS] (А) Деплой на хостинг (VPS с Docker): Let's Encrypt вместо mkcert, закрытый доступ (basic auth или allowlist IP), секреты через `make secrets` на сервере, только синтетика, обновление `git pull && make up`; инструкция в `deploy/README.md`
 
 ## 10. Ручное тестирование безопасности (Н4)
 - [ ] 10.1 [SEC] (Д) Test plan по WSTG 4.2 (authn, authz, session, input validation, business logic, client-side)
