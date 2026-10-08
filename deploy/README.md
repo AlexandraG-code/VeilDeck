@@ -57,6 +57,9 @@ docker compose -f deploy/docker-compose.prod.yml --env-file .env ps
 Проверка с вашего компьютера: `curl -k https://<IP>/healthz` → `{"status":"ok"}`; в браузере `https://<IP>/` запросит
 логин и пароль (basic auth), предупреждение сертификата принять.
 
+`make deploy` сам передаёт ключ сертификата и `htpasswd` пользователю uid 101 (под ним работает nginx), для этого нужен `sudo`.
+Без этого nginx падает с `Permission denied` на `localhost-key.pem`.
+
 Обновление после нового коммита в `main` (когда Publish images снова отработал): `make deploy`.
 
 ## 4. Если ghcr.io недоступен с сервера

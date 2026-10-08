@@ -38,7 +38,9 @@ basic-auth:
 	@echo "deploy/htpasswd создан"
 
 # Обновление на сервере: образы берутся из ghcr.io, сборки на сервере нет.
+# nginx в образе работает от uid 101: ключ и htpasswd (0600) должны принадлежать ему, иначе nginx не стартует.
 deploy:
+	sudo chown 101:101 deploy/certs/localhost-key.pem deploy/htpasswd
 	docker compose -f deploy/docker-compose.prod.yml --env-file .env pull
 	docker compose -f deploy/docker-compose.prod.yml --env-file .env up -d
 
