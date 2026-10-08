@@ -5,7 +5,16 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.core.exceptions import Conflict, DomainError, Forbidden, Gone, NotFound, RateLimited, Unauthorized
+from app.core.exceptions import (
+    Conflict,
+    DomainError,
+    Forbidden,
+    Gone,
+    NotFound,
+    RateLimited,
+    Unauthorized,
+    Unprocessable,
+)
 from app.core.request_id import get_request_id
 
 HTTP_INTERNAL_ERROR = 500
@@ -17,6 +26,7 @@ STATUS_BY_ERROR: dict[type[DomainError], int] = {
     Conflict: 409,
     Gone: 410,
     RateLimited: 429,
+    Unprocessable: VALIDATION_STATUS,
 }
 
 
@@ -31,7 +41,9 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(DomainError)
     async def _domain_error(_: Request, exc: DomainError) -> JSONResponse:
-        status = STATUS_BY_ERROR.get(type(exc), HTTP_INTERNAL_ERROR)
+        status = next(
+            (STATUS_BY_ERROR[cls] for cls in type(exc).__mro__ if cls in STATUS_BY_ERROR), HTTP_INTERNAL_ERROR
+        )
         response = error_response(status, exc.code, exc.message)
         if isinstance(exc, RateLimited):
             response.headers["Retry-After"] = str(exc.retry_after)

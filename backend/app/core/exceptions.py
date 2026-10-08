@@ -40,6 +40,13 @@ class Conflict(DomainError):
     message = "Конфликт состояния"
 
 
+class Unprocessable(DomainError):
+    """Данные синтаксически верны, но не принимаются (например, файл не прошёл проверку): 422."""
+
+    code = "unprocessable"
+    message = "Данные не приняты"
+
+
 class Gone(DomainError):
     """Ссылка использована, истекла или отозвана."""
 
