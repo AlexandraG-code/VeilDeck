@@ -78,11 +78,9 @@ Makefile   make secrets | seed | retention-run NOW_OFFSET=31d
 - Загрузки: PDF/PNG/JPEG, ≤ 10 МБ, magic bytes = расширение = MIME, PDF с JS/вложениями/шифрованием отклоняется, имя файла случайное.
 - Тесты: pytest. Линт: ruff. Безопасность: bandit, pip-audit.
 
-## 6. Frontend: архитектура как у notifier-frontend
+## 6. Frontend: архитектура FSD
 
-Эталон: `/Users/alex/WebstormProjects/notifierFrontend` (его `AGENTS.md` — подробные правила). Переносится универсальное ядро; GREEN-API-специфика не переносится.
-
-**Стек:** React 19, TypeScript, Vite, antd 6 + `@ant-design/icons`, TanStack Query 5 (серверный стейт) + zustand 5 (клиентский стейт), react-router-dom 7 (`createHashRouter` не нужен — VeilDeck за nginx, используем `createBrowserRouter`), axios, i18next + react-i18next, SCSS Modules (sass), vitest + Testing Library, Playwright, eslint (flat) + typescript-eslint, prettier + `@trivago/prettier-plugin-sort-imports`. Пакетный менеджер — yarn. Redux и RTK Query не используем: роль RTK Query играет TanStack Query.
+**Стек:** React 19, TypeScript, Vite, antd 6 + `@ant-design/icons`, TanStack Query 5 (серверный стейт) + zustand 5 (клиентский стейт), react-router-dom 7 (`createBrowserRouter`), axios, i18next + react-i18next, SCSS Modules (sass), vitest + Testing Library, Playwright, eslint (flat) + typescript-eslint, prettier + `@trivago/prettier-plugin-sort-imports`. Пакетный менеджер — yarn.
 
 **Слои FSD** (импорт только вниз): `app → pages → widgets → features → entities → shared`.
 ```

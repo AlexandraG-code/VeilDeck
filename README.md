@@ -51,7 +51,7 @@
 ```
 
 - **Backend:** Python 3.12, FastAPI, SQLAlchemy 2, Alembic, Pydantic v2.
-- **Frontend:** React 19, TypeScript, Vite, antd 6, zustand, архитектура FSD (по образцу notifier-frontend).
+- **Frontend:** React 19, TypeScript, Vite, antd 6, zustand, архитектура FSD.
 - **Данные:** PostgreSQL 16, Redis 7; сессии на сервере, без JWT.
 - **Инфраструктура:** nginx как единственная точка входа, Mailpit, Docker Compose.
 
