@@ -9,8 +9,8 @@
    CODEOWNERS и защита `main`.
 2. Поставить инструменты: Git, Docker Desktop, Python 3.12, Node 20+ и yarn, `gh` (GitHub CLI), `openspec`.
 3. Клонировать репозиторий и прочитать по порядку: `README.md`, `AGENTS.md`, `openspec/config.yaml`,
-   `openspec/changes/add-controlled-disclosure-mvp/{proposal,design,tasks}.md` и спеку своего домена
-   (`.../specs/<домен>/spec.md`).
+   `openspec/changes/add-controlled-disclosure-mvp/{proposal,design,tasks}.md` и спеки своих доменов
+   (раздел 2.1 ниже).
 4. Создать секреты и запустить локально: `make secrets`, затем `make up` (подробности в `README.md`).
    Файл `.env` в git не попадает.
 5. Узнать у координатора свой срез (см. таблицу в `AGENTS.md` §11 и исполнителя в скобках в `tasks.md`).
@@ -26,6 +26,27 @@
 - **Защищённые зоны** (`.github/CODEOWNERS`): их владелец обязан одобрить PR. Правишь чужую зону — только через PR.
 - **Перекрёстное ревью:** PR автора смотрит вторая участница и дописывает негативные `TC-*` по спеке.
 - **Расходится код со спекой** — правится спека через OpenSpec-change, а не молча код.
+
+### 2.1. Где лежат спеки
+
+Требования лежат внутри change: `openspec/changes/add-controlled-disclosure-mvp/specs/<домен>/spec.md`, по одному файлу
+на домен. Папка `openspec/specs/` пуста до архивации change, искать там не нужно. Формат: Requirement и Scenario
+(GIVEN/WHEN/THEN).
+
+| Домен (папка) | О чём | Задачи |
+|---|---|---|
+| `platform-security` | сквозное: сессии, CSRF, rate limit, логи, заголовки | 2.x |
+| `staff-auth-rbac` | вход staff, пароль и TOTP, роли, RBAC | 3.x, 2.5 |
+| `audit-log` | append-only аудит, hash-цепочка, allowlist `details` | 2.1, 8.x |
+| `review-decisions` | очередь, решение, grants, отзыв, письма | 6.x |
+| `card-management` | CRUD карточек, загрузка материалов | 4.x |
+| `teaser-catalog` | публичный каталог и карточка | 5.1, 5.3 |
+| `access-requests` | запрос доступа от внешнего пользователя | 5.2 |
+| `viewer-access` | одноразовая ссылка, просмотр, watermark | 7.x |
+| `protected-content` | защита материалов, оригиналы не отдаются | 7.x |
+| `data-retention` | сроки хранения, удаление, обезличивание | 8.2, 8.3 |
+
+Читай спеки своего среза и `platform-security`: он затрагивает всех.
 
 ## 3. Агенты: что такое комитет
 
