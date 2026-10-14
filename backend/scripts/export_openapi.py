@@ -8,12 +8,15 @@ import os
 import sys
 from pathlib import Path
 
+from cryptography.fernet import Fernet
+
 FAKE_ENV = {
     "ENV": "dev",
     "DATABASE_URL": "postgresql+asyncpg://x:x@localhost/x",
     "REDIS_URL": "redis://localhost:6379/0",
     "SESSION_SECRET": "s" * 40,
-    "FERNET_KEY": "f" * 40,
+    "FERNET_KEY": Fernet.generate_key().decode(),  # фиктивный ключ: нужен только для импорта приложения
+    "PUBLIC_ORIGIN": "https://localhost",
     "HMAC_KEY": "h" * 40,
     "WM_KEY": "w" * 40,
 }

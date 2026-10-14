@@ -110,3 +110,6 @@ forbidden_modules =
 ignore_imports =
     app.catalog.router -> app.api.database
     app.catalog.router -> app.api.catalog_limit
+    app.auth.router -> app.api.cookies
+    app.auth.router -> app.api.database
+    app.auth.router -> app.api.deps

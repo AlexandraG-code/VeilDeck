@@ -6,3 +6,4 @@ ruff
 bandit
 pip-audit
 import-linter
+fakeredis
