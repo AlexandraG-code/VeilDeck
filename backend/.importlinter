@@ -113,3 +113,6 @@ ignore_imports =
     app.auth.router -> app.api.cookies
     app.auth.router -> app.api.database
     app.auth.router -> app.api.deps
+    app.cards.router -> app.api.client_ip
+    app.cards.router -> app.api.database
+    app.cards.router -> app.api.deps

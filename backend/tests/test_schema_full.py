@@ -18,7 +18,7 @@ BACKEND = Path(__file__).resolve().parents[1]
 ALL_PRIVILEGES = ("SELECT", "INSERT", "UPDATE", "DELETE", "TRUNCATE", "REFERENCES", "TRIGGER")
 # Ожидаемые права app_rw на все объекты схемы; новая таблица без записи здесь роняет тест.
 EXPECTED = {
-    "cards": set(),  # публичный API читает только view catalog_cards
+    "cards": {"SELECT", "INSERT", "UPDATE"},  # staff-API (4.1); публичный каталог читает только view catalog_cards
     "catalog_cards": {"SELECT"},
     "audit_events": {"SELECT", "INSERT"},
     "staff_users": {"SELECT", "INSERT", "UPDATE"},

@@ -23,7 +23,7 @@ class Card(Base):
         CheckConstraint("deal_type IN ('equity', 'asset', 'partnership')", name="card_deal"),
         CheckConstraint("status != 'published' OR published_at IS NOT NULL", name="card_published_at"),
         CheckConstraint("char_length(title_generic) BETWEEN 1 AND 80", name="card_title_length"),
-        CheckConstraint("char_length(teaser_text) <= 600", name="card_teaser_length"),
+        CheckConstraint("char_length(teaser_text) BETWEEN 1 AND 600", name="card_teaser_length"),
         Index("ix_cards_catalog", "status", "published_at", "id"),
     )
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
