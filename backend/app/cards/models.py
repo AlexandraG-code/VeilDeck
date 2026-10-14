@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import CheckConstraint, DateTime, Index, String, Text
+from sqlalchemy import BigInteger, CheckConstraint, DateTime, ForeignKey, Index, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -38,5 +38,24 @@ class Card(Base):
     org_name: Mapped[str] = mapped_column(String(200))
     org_aliases: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
     full_description: Mapped[str] = mapped_column(Text)
-    created_by: Mapped[UUID | None]
+    created_by: Mapped[UUID | None] = mapped_column(ForeignKey("staff_users.id", ondelete="RESTRICT"))
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class Material(Base):
+    """Материал карточки (PDF/PNG/JPEG); оригинал viewer-у не отдаётся, имя на диске случайное."""
+
+    __tablename__ = "materials"
+    __table_args__ = (
+        CheckConstraint("sha256 ~ '^[0-9a-f]{64}$'", name="material_sha256_hex"),
+        Index("ix_materials_card_id", "card_id"),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    card_id: Mapped[UUID] = mapped_column(ForeignKey("cards.id", ondelete="RESTRICT"))
+    storage_key: Mapped[str] = mapped_column(String(128), unique=True)
+    original_name: Mapped[str] = mapped_column(String(255))
+    mime: Mapped[str] = mapped_column(String(100))
+    size: Mapped[int] = mapped_column(BigInteger)
+    sha256: Mapped[str] = mapped_column(String(64))
+    pages: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=text("now()"))

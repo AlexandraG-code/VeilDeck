@@ -7,6 +7,7 @@
 |---|---|
 | `cards` | Полная карточка: teaser и confidential-поля; статусы draft/published/archived |
 | `audit_events` | Неизменяемые события ограничения запросов, hash-цепочка |
+| `staff_users`, `materials`, `access_requests`, `decisions`, `grants`, `magic_links` | Остальные таблицы design §2 (миграция `0002_full_schema`); пока только схема и права, логики поверх них нет |
 | `catalog_cards` (view) | Только опубликованные карточки и девять разрешённых teaser-полей |
 
 Миграции и seed выполняются под `app_owner`. API работает под `app_rw`: только SELECT
@@ -46,7 +47,7 @@ curl -k 'https://localhost:8443/api/v1/cards?page=1&page_size=5'
 Параметры списка: `page` от 1 до 100000, `page_size` от 1 до 20;
 фильтры `industry`, `region_macro`, `deal_type` — только enum.
 Полный контракт и значения enum: `docs/api/openapi.json`; клиент TypeScript сгенерирован orval.
-При `ENV=demo` Swagger выключен по требованиям кейса.
+При `ENV=demo` Swagger выключен, если не задан `ENABLE_DOCS=true` (демо-стенд за basic auth: `/api/docs`).
 
 ```bash
 curl -k 'https://localhost:8443/api/v1/cards?industry=manufacturing&region_macro=asia&deal_type=equity'

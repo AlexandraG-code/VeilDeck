@@ -8,8 +8,12 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.audit.models import AuditEvent  # noqa: F401
-from app.cards.models import Card  # noqa: F401
+from app.auth.models import StaffUser  # noqa: F401
+from app.cards.models import Card, Material  # noqa: F401
 from app.core.database import Base
+from app.grants.models import Grant, MagicLink  # noqa: F401
+from app.requests.models import AccessRequest  # noqa: F401
+from app.review.models import Decision  # noqa: F401
 
 target_metadata = Base.metadata
 
