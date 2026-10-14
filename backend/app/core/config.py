@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     fernet_key: str = Field(alias="FERNET_KEY")
     hmac_key: str = Field(alias="HMAC_KEY")
     wm_key: str = Field(alias="WM_KEY")
+    enable_docs: bool = Field(default=False, alias="ENABLE_DOCS")
 
     @field_validator("session_secret", "fernet_key", "hmac_key", "wm_key")
     @classmethod
@@ -33,8 +34,8 @@ class Settings(BaseSettings):
 
     @property
     def docs_enabled(self) -> bool:
-        """Swagger/ReDoc выключены при ENV=demo."""
-        return self.env != "demo"
+        """Swagger/ReDoc выключены при ENV=demo, если явно не задан ENABLE_DOCS=true (демо-стенд за basic auth)."""
+        return self.env != "demo" or self.enable_docs
 
 
 @lru_cache

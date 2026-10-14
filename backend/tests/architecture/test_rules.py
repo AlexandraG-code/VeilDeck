@@ -18,7 +18,7 @@ PUBLIC_PREFIXES = (
     "/api/v1/cards",  # публичный каталог и запрос доступа (rate limit обязателен — задачи 5.1, 5.2)
     "/api/v1/access/redeem",  # обмен одноразовой ссылки на сессию viewer (задача 7.1)
 )
-DOCS_PATHS = {"/docs", "/redoc", "/openapi.json", "/docs/oauth2-redirect"}
+DOCS_PATHS = {"/api/docs", "/api/redoc", "/api/openapi.json", "/api/docs/oauth2-redirect"}
 
 
 def _has_auth_dependency(route: APIRoute) -> bool:
