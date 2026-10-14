@@ -3,6 +3,7 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.exceptions import (
@@ -12,6 +13,7 @@ from app.core.exceptions import (
     Gone,
     NotFound,
     RateLimited,
+    ServiceUnavailable,
     Unauthorized,
     Unprocessable,
 )
@@ -27,6 +29,7 @@ STATUS_BY_ERROR: dict[type[DomainError], int] = {
     Gone: 410,
     RateLimited: 429,
     Unprocessable: VALIDATION_STATUS,
+    ServiceUnavailable: 503,
 }
 
 
@@ -38,6 +41,10 @@ def error_response(status_code: int, code: str, message: str) -> JSONResponse:
 
 def register_error_handlers(app: FastAPI) -> None:
     """Подключает обработчики, скрывающие внутренние детали."""
+
+    @app.exception_handler(SQLAlchemyError)
+    async def _database_error(_: Request, __: SQLAlchemyError) -> JSONResponse:
+        return error_response(503, ServiceUnavailable.code, ServiceUnavailable.message)
 
     @app.exception_handler(DomainError)
     async def _domain_error(_: Request, exc: DomainError) -> JSONResponse:
