@@ -53,20 +53,29 @@ flowchart LR
 |---|---|---|
 | `cards` | `id uuid`, `status` (draft/published/archived), teaser: `title_generic`, `industry` (enum), `region_macro` (enum), `size_band` (enum), `revenue_band` (enum), `deal_type` (enum), `teaser_text`; confidential: `org_name`, `org_aliases text[]`, `full_description`; `created_by`, `published_at` | Public (teaser) / Confidential |
 | `materials` | `id uuid`, `card_id`, `storage_key` (случайное имя), `original_name`, `mime`, `size`, `sha256`, `pages` | Confidential |
-| `access_requests` | `id uuid`, `card_id`, `email_enc` (Fernet), `email_hash` (HMAC-SHA256 для rate limit/дедупа), `display_name` (≤ 60), `purpose` (≤ 1000), `status` (pending/approved/rejected/expired/withdrawn), `created_at`, `retain_until` | Personal (synthetic) |
-| `decisions` | `id uuid`, `request_id` UNIQUE, `reviewer_id`, `decision`, `reason_code` (enum), `comment_internal`, `decided_at` | Internal |
-| `grants` | `id uuid`, `request_id`, `card_id`, `viewer_pseudonym` (напр. `viewer-7F3K`), `material_ids uuid[]`, `allow_download bool`, `expires_at`, `max_views int`, `views_used int`, `revoked_at`, `revoked_by`, `revoke_reason` | Internal |
+| `access_requests` | `id uuid`, `card_id`, `email_enc` (Fernet), `email_hash` (HMAC-SHA256 для rate limit/дедупа), `display_name` (≤ 60), `purpose` (≤ 1000), `status` (pending/approved/rejected/expired/withdrawn/purged), `created_at`, `retain_until` | Personal (synthetic) |
+| `decisions` | `id uuid`, `request_id` UNIQUE, `reviewer_id`, `decision` (approve/reject), `reason_code` (enum, только при reject), `comment_internal`, `decided_at` | Internal |
+| `grants` | `id uuid`, `request_id`, `card_id`, `viewer_pseudonym` (напр. `viewer-7F3K`), `material_ids uuid[]`, `allow_download bool`, `expires_at`, `max_views int`, `views_used int`, `revoked_at`, `revoked_by`, `revoke_reason`, `expiry_processed_at` (NULL до обработки истечения: джоба идемпотентна); CHECK `cardinality(material_ids) >= 1 OR revoked_at IS NOT NULL` (при удалении единственного материала grant отзывается с `revoke_reason=material_deleted`) | Internal |
 | `magic_links` | `id uuid`, `grant_id`, `token_hash` (SHA-256), `expires_at`, `used_at`, `used_ip_hash` | Secret (хеш) |
-| `staff_users` | `id uuid`, `email`, `password_hash` (argon2id), `totp_secret_enc`, `role` (reviewer/admin), `is_active`, `failed_logins`, `locked_until` | Secret / Internal |
-| `audit_events` | `id bigserial`, `ts`, `actor_type`, `actor_ref` (псевдоним/uuid), `action`, `object_type`, `object_id`, `outcome` (allow/deny/error), `ip_hash`, `request_id`, `details jsonb` (без чувствительного), `prev_hash`, `hash` | Internal, append-only |
+| `staff_users` | `id uuid`, `email`, `password_hash` (argon2id), `totp_secret_enc`, `role` (reviewer/admin), `is_active`, `failed_logins`, `locked_until`, `totp_last_step bigint` (последний принятый шаг TOTP: повтор кода отклоняется), `created_at` | Secret / Internal |
+| `audit_events` | `id bigint GENERATED ALWAYS AS IDENTITY` (приложение не задаёт id, права на sequence не нужны), `ts`, `actor_type`, `actor_ref` (псевдоним/uuid), `action`, `object_type`, `object_id`, `outcome` (allow/deny/error), `ip_hash`, `request_id`, `details jsonb` (без чувствительного), `prev_hash` (NOT NULL; у первого события — 64 нуля), `hash` (хеши — hex, 64 символа) | Internal, append-only |
 
 Сессии — в Redis: `sess:<sha256(sid)>` → `{kind: staff|viewer, subject, grant_id?, created, last_seen}`; индекс
 `grant_sessions:<grant_id>` → множество sid для мгновенного отзыва.
 
 ### Роли PostgreSQL
 - `app_owner` — владелец схемы, используется **только** Alembic-миграциями.
-- `app_rw` — роль приложения: CRUD на рабочие таблицы, **только INSERT/SELECT** на `audit_events` (`REVOKE UPDATE, DELETE, TRUNCATE`).
-- Триггер `BEFORE UPDATE OR DELETE ON audit_events` → `RAISE EXCEPTION` (вторая линия защиты).
+- `app_rw` — роль приложения, права выдаются явным `GRANT` в каждой миграции (без `ALTER DEFAULT PRIVILEGES`): `staff_users`, `cards`, `access_requests` — SELECT/INSERT/UPDATE; `materials`, `grants`, `magic_links` — плюс DELETE; `decisions` и `audit_events` — **только INSERT/SELECT**; `alembic_version` недоступна. TRUNCATE не выдаётся никому (`REVOKE UPDATE, DELETE, TRUNCATE` на `audit_events`).
+- Роль `app_rw` создаёт и выставляет ей пароль одноразовый шаг `migrate` (`app_owner`) при каждом деплое; `api` пароля `app_owner` не видит.
+- Триггеры `BEFORE UPDATE OR DELETE` (по строкам) и `BEFORE TRUNCATE` (по операции) на `audit_events` → `RAISE EXCEPTION` (вторая линия защиты).
+
+### Значения enum (синтетические, VARCHAR + именованный CHECK)
+- `industry`: manufacturing, logistics, retail, it_services, energy, real_estate, healthcare, food_beverage.
+- `region_macro`: north_west, central, volga, south, ural, siberia, far_east.
+- `size_band`: micro, small, medium, large.
+- `revenue_band`: lt_100m, from_100m_to_500m, from_500m_to_2b, gt_2b (рубли).
+- `deal_type`: full_sale, minority_stake, majority_stake, strategic_partnership.
+- `reason_code` (отказ): insufficient_profile, not_qualified, conflict_of_interest, capacity_limit, other.
 
 ## 3. Матрица доступа
 
@@ -299,6 +308,8 @@ Redis выполняет атомарный sliding window; HMAC(peer-IP) не �
 | Аутентификация | `auth.login_success`, `auth.login_failed`, `auth.locked`, `auth.logout`, `session.invalid` |
 | Авторизация | `authz.denied`, `catalog.rate_limited` |
 | Администрирование | `staff.deactivated`, `staff.activated`, `audit.exported`, `retention.purged` |
+
+Событие `material.page_viewed` пишет в `details` только `view_id` и `wm_code` (поиск по WM-коду; индекс по `details->>'wm_code'`).
 
 ## 12. Лимиты (rate limiting)
 
