@@ -50,6 +50,8 @@ cyclonedx-python-lib==11.12.0
     # via pip-audit
 defusedxml==0.7.1
     # via py-serializable
+fakeredis==2.40.0
+    # via -r requirements-dev.in
 fastapi==0.142.3
     # via -r requirements.in
 filelock==4.0.12
@@ -148,7 +150,9 @@ pyyaml==6.0.3
     #   bandit
     #   uvicorn
 redis==8.1.0
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   fakeredis
 requests==2.34.2
     # via
     #   cachecontrol
@@ -161,7 +165,9 @@ rich==15.0.0
 ruff==0.16.10
     # via -r requirements-dev.in
 sortedcontainers==2.4.0
-    # via cyclonedx-python-lib
+    # via
+    #   cyclonedx-python-lib
+    #   fakeredis
 sqlalchemy==2.1.4
     # via
     #   -r requirements.in

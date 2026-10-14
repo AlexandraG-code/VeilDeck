@@ -23,6 +23,7 @@ services:
     build: ../backend
     environment:
       ENV: ${ENV}
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-https://localhost:8443}
       DATABASE_URL: postgresql+asyncpg://app_rw:${APP_RW_PASSWORD}@postgres:5432/veildeck
       REDIS_URL: redis://redis:6379/0
       SESSION_SECRET: ${SESSION_SECRET}

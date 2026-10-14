@@ -13,6 +13,8 @@ from app.main import app as fastapi_app
 # Роуты без проверки роли: только явный allowlist (и каждая запись объясняется).
 PUBLIC_ROUTES = {
     ("GET", "/healthz"),  # проверка живости
+    ("GET", "/api/v1/csrf"),  # выдача CSRF-токена до входа (double-submit)
+    ("POST", "/api/v1/staff/auth/login"),  # вход: до него сессии нет; CSRF и lockout обязательны (SR-12)
 }
 PUBLIC_PREFIXES = (
     "/api/v1/cards",  # публичный каталог и запрос доступа (rate limit обязателен — задачи 5.1, 5.2)
@@ -81,3 +83,26 @@ def test_unauthorized_by_default():
     response = TestClient(probe_app, raise_server_exceptions=False).get("/_probe")
     assert response.status_code == 401
     assert set(response.json()["error"]) == {"code", "message", "request_id"}
+
+
+def _has_csrf_dependency(route: APIRoute) -> bool:
+    """Есть ли в дереве зависимостей require_csrf."""
+    stack = list(route.dependant.dependencies)
+    while stack:
+        dep = stack.pop()
+        if getattr(dep.call, "is_csrf_dependency", False):
+            return True
+        stack.extend(dep.dependencies)
+    return False
+
+
+def test_every_state_changing_route_has_csrf_protection():
+    """TC-API-04: у каждого POST/PUT/PATCH/DELETE есть проверка CSRF, исключений нет."""
+    unprotected = []
+    for route in fastapi_app.routes:
+        if not isinstance(route, APIRoute) or route.path in DOCS_PATHS:
+            continue
+        changing = (route.methods or set()) & {"POST", "PUT", "PATCH", "DELETE"}
+        if changing and not _has_csrf_dependency(route):
+            unprotected.append((sorted(changing), route.path))
+    assert not unprotected, f"Изменяющие роуты без CSRF: {unprotected}"

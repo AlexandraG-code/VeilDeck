@@ -76,6 +76,30 @@ docker save $(docker images --format '{{.Repository}}:{{.Tag}}' | grep veildeck-
 Затем на сервере тот же `make deploy`, но без шага `pull` (`docker compose … up -d`). Теги `postgres:16-alpine`,
 `redis:7-alpine`, `mailpit:v1.31.4` фиксированы в `docker-compose.prod.yml`.
 
+## Вход staff и Swagger на стенде
+
+В `.env` на сервере добавьте адрес стенда и включите документацию (за basic auth):
+
+```bash
+echo 'PUBLIC_ORIGIN=https://<IP_СЕРВЕРА>' >> .env      # без слеша на конце; по нему проверяется заголовок Origin (CSRF)
+echo 'ENABLE_DOCS=true' >> .env
+make deploy
+```
+
+Первого сотрудника создаёт CLI (регистрации через интерфейс нет). Используйте `exec`, а не `run`: у `run` вывод
+попал бы в логи контейнера. Пароль вводится интерактивно, в списке процессов его нет:
+
+```bash
+docker compose -f deploy/docker-compose.prod.yml --env-file .env exec api \
+  python -m scripts.create_staff --email admin@demo.invalid --role admin
+```
+
+Команда один раз печатает otpauth URI и секрет для приложения-аутентификатора. Отсканируйте его сразу.
+
+Сценарий в Swagger (`https://<IP>/api/docs`): `GET /api/v1/csrf` → кнопка **Authorize**, вставить `csrf_token` →
+`POST /api/v1/staff/auth/login` (e-mail, пароль, TOTP-код) → снова **Authorize** с новым `csrf_token` из ответа →
+любой метод staff. Cookie сессии `__Host-sid` браузер ставит и отправляет сам.
+
 ## 5. Mailpit и база: как смотреть
 
 Порты Mailpit и PostgreSQL наружу не публикуются. Письма: `ssh -L 8025:127.0.0.1:8025 deploy@<IP>`, затем

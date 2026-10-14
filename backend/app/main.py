@@ -2,10 +2,12 @@
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from redis.asyncio import Redis
 
 from app.access.router import router as access_router
+from app.api.csrf import require_csrf
+from app.api.csrf import router as csrf_router
 from app.api.health import router as health_router
 from app.audit.router import router as audit_router
 from app.auth.router import router as auth_router
@@ -55,18 +57,19 @@ def create_app() -> FastAPI:
     register_error_handlers(app)
 
     app.include_router(health_router)
+    app.include_router(csrf_router, prefix=API_PREFIX)
     # Публичная зона
-    app.include_router(catalog_router, prefix=f"{API_PREFIX}/cards")
-    app.include_router(requests_router, prefix=f"{API_PREFIX}/cards")
+    app.include_router(catalog_router, prefix=f"{API_PREFIX}/cards", dependencies=[Depends(require_csrf)])
+    app.include_router(requests_router, prefix=f"{API_PREFIX}/cards", dependencies=[Depends(require_csrf)])
     # Viewer
-    app.include_router(access_router, prefix=f"{API_PREFIX}/access")
-    app.include_router(content_router, prefix=f"{API_PREFIX}/access")
+    app.include_router(access_router, prefix=f"{API_PREFIX}/access", dependencies=[Depends(require_csrf)])
+    app.include_router(content_router, prefix=f"{API_PREFIX}/access", dependencies=[Depends(require_csrf)])
     # Staff
-    app.include_router(auth_router, prefix=f"{STAFF_PREFIX}/auth")
-    app.include_router(cards_router, prefix=f"{STAFF_PREFIX}/cards")
-    app.include_router(review_router, prefix=f"{STAFF_PREFIX}/requests")
-    app.include_router(grants_router, prefix=f"{STAFF_PREFIX}/grants")
-    app.include_router(audit_router, prefix=f"{STAFF_PREFIX}/audit")
+    app.include_router(auth_router, prefix=f"{STAFF_PREFIX}/auth", dependencies=[Depends(require_csrf)])
+    app.include_router(cards_router, prefix=f"{STAFF_PREFIX}/cards", dependencies=[Depends(require_csrf)])
+    app.include_router(review_router, prefix=f"{STAFF_PREFIX}/requests", dependencies=[Depends(require_csrf)])
+    app.include_router(grants_router, prefix=f"{STAFF_PREFIX}/grants", dependencies=[Depends(require_csrf)])
+    app.include_router(audit_router, prefix=f"{STAFF_PREFIX}/audit", dependencies=[Depends(require_csrf)])
     return app
 
 

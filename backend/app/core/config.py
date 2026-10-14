@@ -3,6 +3,7 @@
 from functools import lru_cache
 from typing import Literal
 
+from cryptography.fernet import Fernet
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -23,6 +24,7 @@ class Settings(BaseSettings):
     hmac_key: str = Field(alias="HMAC_KEY")
     wm_key: str = Field(alias="WM_KEY")
     enable_docs: bool = Field(default=False, alias="ENABLE_DOCS")
+    public_origin: str = Field(alias="PUBLIC_ORIGIN")
 
     @field_validator("session_secret", "fernet_key", "hmac_key", "wm_key")
     @classmethod
@@ -30,6 +32,24 @@ class Settings(BaseSettings):
         """Отклоняет короткие и дефолтные секреты (SR-32, T-20)."""
         if len(value) < MIN_SECRET_LENGTH or value.lower() in FORBIDDEN_SECRET_VALUES:
             raise ValueError("секрет пуст, короток или равен значению по умолчанию")
+        return value
+
+    @field_validator("fernet_key")
+    @classmethod
+    def fernet_key_is_valid(cls, value: str) -> str:
+        """FERNET_KEY должен быть корректным ключом Fernet (32 байта base64url), иначе приложение не стартует."""
+        try:
+            Fernet(value)
+        except (ValueError, TypeError) as error:
+            raise ValueError("FERNET_KEY не является ключом Fernet") from error
+        return value
+
+    @field_validator("public_origin")
+    @classmethod
+    def origin_is_https(cls, value: str) -> str:
+        """PUBLIC_ORIGIN — только схема и хост (https://host[:port]): с ним сверяется заголовок Origin (CSRF)."""
+        if not value.startswith("https://") or value.endswith("/") or value.count("/") != 2:
+            raise ValueError("PUBLIC_ORIGIN должен иметь вид https://host[:port] без завершающего слеша")
         return value
 
     @property

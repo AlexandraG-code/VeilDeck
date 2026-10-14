@@ -34,6 +34,21 @@
         "title": "CatalogPage",
         "type": "object"
       },
+      "CsrfOut": {
+        "additionalProperties": false,
+        "description": "Токен для заголовка X-CSRF-Token.",
+        "properties": {
+          "csrf_token": {
+            "title": "Csrf Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "csrf_token"
+        ],
+        "title": "CsrfOut",
+        "type": "object"
+      },
       "DealType": {
         "description": "Типы корпоративных возможностей.",
         "enum": [
@@ -82,6 +97,86 @@
         ],
         "title": "Industry",
         "type": "string"
+      },
+      "LoginIn": {
+        "additionalProperties": false,
+        "description": "Вход сотрудника: e-mail, пароль и обязательный TOTP-код.",
+        "properties": {
+          "email": {
+            "maxLength": 254,
+            "minLength": 3,
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          },
+          "totp": {
+            "pattern": "^[0-9]{6}$",
+            "title": "Totp",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "totp"
+        ],
+        "title": "LoginIn",
+        "type": "object"
+      },
+      "LoginOut": {
+        "additionalProperties": false,
+        "description": "Ответ входа: CSRF-токен для заголовка X-CSRF-Token и роль для интерфейса.",
+        "properties": {
+          "csrf_token": {
+            "title": "Csrf Token",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "csrf_token",
+          "role"
+        ],
+        "title": "LoginOut",
+        "type": "object"
+      },
+      "MeOut": {
+        "additionalProperties": false,
+        "description": "Текущий сотрудник из серверной сессии.",
+        "properties": {
+          "csrf_token": {
+            "title": "Csrf Token",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "role",
+          "csrf_token"
+        ],
+        "title": "MeOut",
+        "type": "object"
       },
       "RegionMacro": {
         "description": "Макрорегионы без адреса или города.",
@@ -206,6 +301,14 @@
         "title": "ValidationError",
         "type": "object"
       }
+    },
+    "securitySchemes": {
+      "APIKeyHeader": {
+        "description": "Значение из cookie __Host-csrf",
+        "in": "header",
+        "name": "X-CSRF-Token",
+        "type": "apiKey"
+      }
     }
   },
   "info": {
@@ -314,6 +417,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
         "summary": "List Cards",
         "tags": [
           "catalog"
@@ -357,9 +465,130 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
         "summary": "Get Card",
         "tags": [
           "catalog"
+        ]
+      }
+    },
+    "/api/v1/csrf": {
+      "get": {
+        "description": "Выдаёт токен и ставит cookie __Host-csrf: нужен до входа (login тоже проверяется).",
+        "operationId": "getCsrfToken",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CsrfOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Issue Csrf",
+        "tags": [
+          "csrf"
+        ]
+      }
+    },
+    "/api/v1/staff/auth/login": {
+      "post": {
+        "description": "Пароль + TOTP → новая сессия; присланный до входа SID удаляется (защита от фиксации, TC-AUTH-05).",
+        "operationId": "staffLogin",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "summary": "Login",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/staff/auth/logout": {
+      "post": {
+        "description": "Удаляет сессию на сервере и затирает cookie (TC-AUTH-04).",
+        "operationId": "staffLogout",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "summary": "Logout",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/staff/auth/me": {
+      "get": {
+        "description": "Текущий сотрудник и CSRF-токен его сессии (нужен Swagger/SPA после перезагрузки страницы).",
+        "operationId": "staffMe",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "summary": "Me",
+        "tags": [
+          "auth"
         ]
       }
     },
