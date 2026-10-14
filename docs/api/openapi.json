@@ -1,6 +1,178 @@
 {
   "components": {
     "schemas": {
+      "CardCreateIn": {
+        "additionalProperties": false,
+        "description": "Создание черновика. id, status, created_by и published_at сюда не входят: лишнее поле даёт 422 (TC-API-02).",
+        "properties": {
+          "deal_type": {
+            "$ref": "#/components/schemas/DealType"
+          },
+          "full_description": {
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Full Description",
+            "type": "string"
+          },
+          "industry": {
+            "$ref": "#/components/schemas/Industry"
+          },
+          "org_aliases": {
+            "items": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Org Aliases",
+            "type": "array"
+          },
+          "org_name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Org Name",
+            "type": "string"
+          },
+          "region_macro": {
+            "$ref": "#/components/schemas/RegionMacro"
+          },
+          "revenue_band": {
+            "$ref": "#/components/schemas/RevenueBand"
+          },
+          "size_band": {
+            "$ref": "#/components/schemas/SizeBand"
+          },
+          "teaser_text": {
+            "maxLength": 600,
+            "minLength": 1,
+            "title": "Teaser Text",
+            "type": "string"
+          },
+          "title_generic": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Title Generic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title_generic",
+          "industry",
+          "region_macro",
+          "size_band",
+          "revenue_band",
+          "deal_type",
+          "teaser_text",
+          "org_name",
+          "full_description"
+        ],
+        "title": "CardCreateIn",
+        "type": "object"
+      },
+      "CardFull": {
+        "additionalProperties": false,
+        "description": "Полная карточка для staff: включает конфиденциальные поля, наружу публичному API не отдаётся.",
+        "properties": {
+          "created_by": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By"
+          },
+          "deal_type": {
+            "$ref": "#/components/schemas/DealType"
+          },
+          "full_description": {
+            "title": "Full Description",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "industry": {
+            "$ref": "#/components/schemas/Industry"
+          },
+          "org_aliases": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Org Aliases",
+            "type": "array"
+          },
+          "org_name": {
+            "title": "Org Name",
+            "type": "string"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "region_macro": {
+            "$ref": "#/components/schemas/RegionMacro"
+          },
+          "revenue_band": {
+            "$ref": "#/components/schemas/RevenueBand"
+          },
+          "size_band": {
+            "$ref": "#/components/schemas/SizeBand"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CardStatus"
+          },
+          "teaser_text": {
+            "title": "Teaser Text",
+            "type": "string"
+          },
+          "title_generic": {
+            "title": "Title Generic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "title_generic",
+          "industry",
+          "region_macro",
+          "size_band",
+          "revenue_band",
+          "deal_type",
+          "teaser_text",
+          "org_name",
+          "org_aliases",
+          "full_description",
+          "created_by",
+          "published_at"
+        ],
+        "title": "CardFull",
+        "type": "object"
+      },
+      "CardStatus": {
+        "description": "Состояния жизненного цикла.",
+        "enum": [
+          "draft",
+          "published",
+          "archived"
+        ],
+        "title": "CardStatus",
+        "type": "string"
+      },
       "CatalogPage": {
         "additionalProperties": false,
         "description": "Количество относится только к опубликованным карточкам.",
@@ -261,6 +433,53 @@
         "title": "TeaserCard",
         "type": "object"
       },
+      "TeaserLeakError": {
+        "additionalProperties": false,
+        "description": "Обёртка единого формата ошибки (для OpenAPI).",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/TeaserLeakErrorBody"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "TeaserLeakError",
+        "type": "object"
+      },
+      "TeaserLeakErrorBody": {
+        "additionalProperties": false,
+        "description": "Тело ошибки 422 teaser_leak (для OpenAPI).",
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "violations": {
+            "items": {
+              "$ref": "#/components/schemas/ViolationOut"
+            },
+            "title": "Violations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "request_id",
+          "violations"
+        ],
+        "title": "TeaserLeakErrorBody",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -299,6 +518,26 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "ViolationOut": {
+        "additionalProperties": false,
+        "description": "Нарушение линтера утечек: только код вида и имя поля, без фрагментов текста.",
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "field": {
+            "title": "Field",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "field"
+        ],
+        "title": "ViolationOut",
         "type": "object"
       }
     },
@@ -589,6 +828,149 @@
         "summary": "Me",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/api/v1/staff/cards": {
+      "post": {
+        "description": "Создаёт черновик карточки (admin).",
+        "operationId": "createCard",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CardCreateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardFull"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "summary": "Create Card",
+        "tags": [
+          "cards"
+        ]
+      }
+    },
+    "/api/v1/staff/cards/{card_id}": {
+      "get": {
+        "description": "Полная карточка любого статуса (admin и reviewer); неверный ID — тот же 404, что и несуществующий.",
+        "operationId": "getCard",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "card_id",
+            "required": true,
+            "schema": {
+              "title": "Card Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardFull"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "summary": "Get Card",
+        "tags": [
+          "cards"
+        ]
+      }
+    },
+    "/api/v1/staff/cards/{card_id}/publish": {
+      "post": {
+        "description": "Публикует черновик после проверки линтером утечек (admin).",
+        "operationId": "publishCard",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "card_id",
+            "required": true,
+            "schema": {
+              "title": "Card Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardFull"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeaserLeakError"
+                }
+              }
+            },
+            "description": "Teaser раскрывает организацию (teaser_leak)"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "summary": "Publish Card",
+        "tags": [
+          "cards"
         ]
       }
     },

@@ -54,6 +54,17 @@ class Unprocessable(DomainError):
     message = "Данные не приняты"
 
 
+class TeaserLeak(Unprocessable):
+    """В teaser найдено то, что может раскрыть организацию; violations — только код вида и имя поля, без текста."""
+
+    code = "teaser_leak"
+    message = "Teaser содержит признаки, раскрывающие организацию"
+
+    def __init__(self, violations: list[tuple[str, str]]) -> None:
+        self.violations = [{"code": code, "field": field} for code, field in violations]
+        super().__init__()
+
+
 class Gone(DomainError):
     """Ссылка использована, истекла или отозвана."""
 

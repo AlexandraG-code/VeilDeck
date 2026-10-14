@@ -14,6 +14,7 @@ from app.core.exceptions import (
     NotFound,
     RateLimited,
     ServiceUnavailable,
+    TeaserLeak,
     Unauthorized,
     Unprocessable,
 )
@@ -33,9 +34,9 @@ STATUS_BY_ERROR: dict[type[DomainError], int] = {
 }
 
 
-def error_response(status_code: int, code: str, message: str) -> JSONResponse:
-    """Собирает ответ об ошибке в едином формате."""
-    body = {"error": {"code": code, "message": message, "request_id": get_request_id()}}
+def error_response(status_code: int, code: str, message: str, extra: dict | None = None) -> JSONResponse:
+    """Собирает ответ об ошибке в едином формате; extra — дополнительные безопасные поля (например, violations)."""
+    body = {"error": {"code": code, "message": message, "request_id": get_request_id(), **(extra or {})}}
     return JSONResponse(status_code=status_code, content=body)
 
 
@@ -51,7 +52,8 @@ def register_error_handlers(app: FastAPI) -> None:
         status = next(
             (STATUS_BY_ERROR[cls] for cls in type(exc).__mro__ if cls in STATUS_BY_ERROR), HTTP_INTERNAL_ERROR
         )
-        response = error_response(status, exc.code, exc.message)
+        extra = {"violations": exc.violations} if isinstance(exc, TeaserLeak) else None
+        response = error_response(status, exc.code, exc.message, extra)
         if isinstance(exc, RateLimited):
             response.headers["Retry-After"] = str(exc.retry_after)
         return response

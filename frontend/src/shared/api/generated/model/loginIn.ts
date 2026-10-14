@@ -19,6 +19,6 @@ export interface LoginIn {
      * @maxLength 128
      */
   password: string;
-  /** @pattern ^\d{6}$ */
+  /** @pattern ^[0-9]{6}$ */
   totp: string;
 }

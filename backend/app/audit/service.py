@@ -57,6 +57,39 @@ async def record_catalog_limit(
         await repository.append(session, {**values, "prev_hash": previous, "hash": event_hash(previous, values)})
 
 
+async def record(
+    session: AsyncSession,
+    *,
+    actor_ref: str,
+    action: str,
+    object_type: str,
+    object_id: UUID | None,
+    ip_hash: str,
+    request_id: str,
+    details: dict | None = None,
+    actor_type: str = "staff",
+    outcome: str = "allow",
+) -> None:
+    """Пишет событие успешного действия в транзакции вызывающего сервиса (откат действия откатывает и аудит).
+
+    details — только allowlist без чувствительного (title, teaser, org_* сюда не передаются).
+    """
+    values = {
+        "ts": datetime.now(UTC),
+        "actor_type": actor_type,
+        "actor_ref": actor_ref,
+        "action": action,
+        "object_type": object_type,
+        "object_id": object_id,
+        "outcome": outcome,
+        "ip_hash": ip_hash,
+        "request_id": UUID(request_id),
+        "details": details or {},
+    }
+    previous = await repository.lock_chain(session)
+    await repository.append(session, {**values, "prev_hash": previous, "hash": event_hash(previous, values)})
+
+
 async def verify_chain(session: AsyncSession) -> bool:
     """Внутренняя проверка hash-цепочки; HTTP-доступ к аудиту остаётся задачей 8.1."""
     previous = "0" * 64

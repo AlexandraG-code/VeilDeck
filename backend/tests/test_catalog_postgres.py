@@ -137,7 +137,8 @@ def test_tc_rl_response_and_append_only_audit(api, database_url):
     after = asyncio.run(sql(owner, "SELECT count(*) FROM audit_events"))[0][0]
     assert after == before + 1
     for query in [
-        "SELECT org_name FROM cards",
+        "SELECT org_name FROM catalog_cards",  # во view нет confidential-колонок
+        "DELETE FROM cards",  # у app_rw нет DELETE: снятие карточки идёт через archive
         "DELETE FROM audit_events",
         "UPDATE audit_events SET outcome='allow'",
         "TRUNCATE audit_events",
