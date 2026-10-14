@@ -20,7 +20,8 @@ from app.grants.router import router as grants_router
 from app.requests.router import router as requests_router
 from app.review.router import router as review_router
 
-API_PREFIX = "/api/v1"
+API_ROOT = "/api"
+API_PREFIX = f"{API_ROOT}/v1"
 STAFF_PREFIX = f"{API_PREFIX}/staff"
 
 
@@ -45,9 +46,10 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="VeilDeck API",
         lifespan=lifespan,
-        docs_url="/docs" if settings.docs_enabled else None,
-        redoc_url="/redoc" if settings.docs_enabled else None,
-        openapi_url="/openapi.json" if settings.docs_enabled else None,
+        # Под /api/, чтобы nginx проксировал документацию в api (раньше она была бы недоступна снаружи).
+        docs_url=f"{API_ROOT}/docs" if settings.docs_enabled else None,
+        redoc_url=f"{API_ROOT}/redoc" if settings.docs_enabled else None,
+        openapi_url=f"{API_ROOT}/openapi.json" if settings.docs_enabled else None,
     )
     app.add_middleware(RequestIdMiddleware)
     register_error_handlers(app)

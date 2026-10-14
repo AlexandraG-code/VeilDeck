@@ -26,6 +26,8 @@ services:
     image: ${IMAGE_PREFIX:-ghcr.io/alexandrag-code/veildeck}-api:${IMAGE_TAG:-latest}
     environment:
       ENV: ${ENV}
+      # Swagger на демо-стенде (отклонение от «docs выключены при ENV=demo»): закрыт basic auth в nginx
+      ENABLE_DOCS: ${ENABLE_DOCS:-false}
       DATABASE_URL: postgresql+asyncpg://app_rw:${APP_RW_PASSWORD}@postgres:5432/veildeck
       REDIS_URL: redis://redis:6379/0
       SESSION_SECRET: ${SESSION_SECRET}
