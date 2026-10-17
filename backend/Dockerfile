@@ -5,7 +5,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 FROM python:3.12-slim
-RUN useradd --system --uid 10001 --no-create-home app
+RUN useradd --system --uid 10001 --no-create-home app \
+    && mkdir -p /data/materials && chown 10001 /data/materials
 COPY --from=builder /install /usr/local
 WORKDIR /srv
 COPY app ./app

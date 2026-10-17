@@ -30,6 +30,8 @@ services:
       FERNET_KEY: ${FERNET_KEY}
       HMAC_KEY: ${HMAC_KEY}
       WM_KEY: ${WM_KEY}
+    volumes:
+      - materials:/data/materials:ro
     depends_on:
       db-init:
         condition: service_completed_successfully
@@ -49,6 +51,33 @@ services:
     environment:
       MIGRATION_DATABASE_URL: postgresql+asyncpg://app_owner:${POSTGRES_PASSWORD}@postgres:5432/veildeck
       APP_RW_PASSWORD: ${APP_RW_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [data]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+
+  # Разовая задача `make seed`: только синтетика; PDF кладутся в том materials (оригиналы, SR-24)
+  seed:
+    build: ../backend
+    profiles: [tools]
+    command: ["python", "-m", "scripts.seed_catalog"]
+    environment:
+      ENV: ${ENV}
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-https://localhost:8443}
+      MIGRATION_DATABASE_URL: postgresql+asyncpg://app_owner:${POSTGRES_PASSWORD}@postgres:5432/veildeck
+      DATABASE_URL: postgresql+asyncpg://app_owner:${POSTGRES_PASSWORD}@postgres:5432/veildeck
+      REDIS_URL: redis://redis:6379/0
+      SESSION_SECRET: ${SESSION_SECRET}
+      FERNET_KEY: ${FERNET_KEY}
+      HMAC_KEY: ${HMAC_KEY}
+      WM_KEY: ${WM_KEY}
+      MATERIALS_DIR: /data/materials
+    volumes:
+      - materials:/data/materials
     depends_on:
       postgres:
         condition: service_healthy
@@ -90,3 +119,4 @@ networks:
 
 volumes:
   pgdata: {}
+  materials: {}
