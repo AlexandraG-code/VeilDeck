@@ -1,6 +1,62 @@
 {
   "components": {
     "schemas": {
+      "AccessRequestIn": {
+        "additionalProperties": false,
+        "description": "Форма запроса расширенного доступа (SR-17: лишние поля, status и card_id в теле отвергаются).",
+        "properties": {
+          "consent": {
+            "const": true,
+            "title": "Consent",
+            "type": "boolean"
+          },
+          "display_name": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 254,
+            "title": "Email",
+            "type": "string"
+          },
+          "purpose": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Purpose",
+            "type": "string"
+          },
+          "website": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Website",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "display_name",
+          "purpose",
+          "consent"
+        ],
+        "title": "AccessRequestIn",
+        "type": "object"
+      },
+      "AccessRequestOut": {
+        "additionalProperties": false,
+        "description": "Единый ответ на отправку: не зависит от исхода (SR-23, T-02).",
+        "properties": {
+          "status": {
+            "const": "received",
+            "default": "received",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "AccessRequestOut",
+        "type": "object"
+      },
       "CardCreateIn": {
         "additionalProperties": false,
         "description": "Создание черновика. id, status, created_by и published_at сюда не входят: лишнее поле даёт 422 (TC-API-02).",
@@ -712,6 +768,64 @@
         "summary": "Get Card",
         "tags": [
           "catalog"
+        ]
+      }
+    },
+    "/api/v1/cards/{card_id}/access-requests": {
+      "post": {
+        "description": "Анонимная форма: ответ одинаков для новой карточки, дубля, неопубликованной карточки и honeypot.",
+        "operationId": "createAccessRequest",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "card_id",
+            "required": true,
+            "schema": {
+              "title": "Card Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessRequestIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessRequestOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "summary": "Create Access Request",
+        "tags": [
+          "requests"
         ]
       }
     },

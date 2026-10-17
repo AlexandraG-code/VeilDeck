@@ -116,3 +116,6 @@ ignore_imports =
     app.cards.router -> app.api.client_ip
     app.cards.router -> app.api.database
     app.cards.router -> app.api.deps
+    app.requests.router -> app.api.client_ip
+    app.requests.router -> app.api.database
+    app.requests.router -> app.api.request_limit

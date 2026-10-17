@@ -5,6 +5,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './accessRequestIn';
+export * from './accessRequestOut';
 export * from './cardCreateIn';
 export * from './cardFull';
 export * from './cardStatus';
