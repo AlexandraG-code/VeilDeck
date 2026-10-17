@@ -1,14 +1,18 @@
 import type { FC } from 'react';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 
+import { ErrorNotifier } from './error-notification';
+import { queryClient } from './queryClient';
 import { AppRouter } from './routes/AppRouter';
+import { ThemeProvider } from './theming';
 
-const queryClient = new QueryClient();
-
-/** Корень приложения: провайдеры и роутер. */
+/** Корень приложения: провайдеры, глобальный показ ошибок и роутер. */
 export const App: FC = () => (
   <QueryClientProvider client={queryClient}>
-    <AppRouter />
+    <ThemeProvider>
+      <ErrorNotifier />
+      <AppRouter />
+    </ThemeProvider>
   </QueryClientProvider>
 );

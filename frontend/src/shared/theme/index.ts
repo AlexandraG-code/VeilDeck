@@ -1,0 +1,1 @@
+export { getAntdTheme } from './getAntdTheme';

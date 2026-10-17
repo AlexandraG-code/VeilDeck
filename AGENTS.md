@@ -85,7 +85,7 @@ Makefile   make secrets | seed | retention-run NOW_OFFSET=31d
 **Слои FSD** (импорт только вниз): `app → pages → widgets → features → entities → shared`.
 ```
 src/
-  app/       main.tsx, App.tsx, providers/ (ErrorNotifier, ThemeProvider), routes/ (AppRouter, guards), styles/
+  app/       main.tsx, App.tsx, error-notification/ (ErrorNotifier), theming/ (ThemeProvider), routes/ (AppRouter, guards), styles/
   pages/     тонкие оболочки страниц
   widgets/   составные блоки (виджет не импортирует другой виджет — их сочетает страница)
   features/  пользовательские сценарии (Auth, RequestAccess, DecideRequest, RevokeGrant, ...)
