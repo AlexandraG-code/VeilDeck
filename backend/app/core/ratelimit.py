@@ -56,3 +56,31 @@ async def release_catalog_audit(redis: Redis, ip_hash: str, token: str) -> None:
         await redis.eval(script, 1, f"catalog:{{{ip_hash}}}:audit", token)
     except RedisError:
         raise ServiceUnavailable from None
+
+
+async def check_window(redis: Redis, name: str, subject: str, limit: int, window_ms: int) -> tuple[int, str | None]:
+    """Общее скользящее окно: Retry-After (0, если лимит не превышен) и token разового аудита отказа.
+
+    subject — только HMAC (IP или e-mail), исходные значения в Redis не попадают (SR-25, SR-28).
+    """
+    token = uuid4().hex
+    key = f"{name}:{{{subject}}}"
+    try:
+        result = await redis.eval(SLIDING_WINDOW, 2, key, f"{key}:audit", window_ms, limit, token)
+    except RedisError:
+        raise ServiceUnavailable from None
+    return int(result[0]), token if result[1] else None
+
+
+async def release_window_audit(redis: Redis, name: str, subject: str, token: str) -> None:
+    """Освобождает маркер аудита, если запись отказа не удалась (чтобы следующий отказ был записан)."""
+    script = """
+    if redis.call('GET', KEYS[1]) == ARGV[1] then
+      return redis.call('DEL', KEYS[1])
+    end
+    return 0
+    """
+    try:
+        await redis.eval(script, 1, f"{name}:{{{subject}}}:audit", token)
+    except RedisError:
+        raise ServiceUnavailable from None
