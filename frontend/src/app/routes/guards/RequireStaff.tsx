@@ -4,8 +4,8 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { Spin } from 'antd';
 
 import { useStaffMe } from '@shared/api/generated';
+import { STAFF_LOGIN_PATH } from '@shared/config';
 
-import { STAFF_LOGIN_PATH } from '../constants';
 import type { RequireStaffProps } from './types';
 
 /**

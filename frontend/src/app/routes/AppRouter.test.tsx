@@ -4,10 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
+import { STAFF_HOME_PATH } from '@shared/config';
 import { i18n } from '@shared/i18n';
 
 import { routes } from './AppRouter';
-import { STAFF_HOME_PATH } from './constants';
 
 vi.mock('@shared/api/generated', () => ({
   useStaffMe: () => ({ data: undefined, error: new Error('401'), isPending: false }),
