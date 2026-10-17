@@ -1,0 +1,15 @@
+{
+  "appName": "VeilDeck",
+  "zones": {
+    "access": "View materials via one-time link",
+    "viewer": "Materials viewer",
+    "staffLogin": "Staff sign in",
+    "staffHome": "Staff workspace"
+  },
+  "errors": {
+    "generic": "The request failed. Please try again later.",
+    "forbidden": "You do not have permission for this action.",
+    "tooManyRequests": "Too many requests. Please retry shortly.",
+    "requestId": "Request ID: {{id}}"
+  }
+}
