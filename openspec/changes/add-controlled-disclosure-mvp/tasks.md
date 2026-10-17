@@ -70,11 +70,11 @@
 - [ ] 7.8 [SEC] (А) Тесты TC-LINK-02..05, TC-VIEW-05..08, TC-WM-01..03, TC-RACE-01..02, TC-LEAK-01..04, TC-RL-02
 
 ## 8. Аудит и retention (Н3–Н4)
-- [ ] 8.1 [BE] (А) Просмотр аудита (фильтры, пагинация), CSV-экспорт, `audit/verify`
+- [ ] 8.1 [BE] (Д) Просмотр аудита (фильтры, пагинация), CSV-экспорт, `audit/verify`
 - [ ] 8.2 [BE] (А) Retention-джобы в worker + `make retention-run NOW_OFFSET=...`
 - [ ] 8.3 [BE] (А) Ручное обезличивание запроса и удаление материала
-- [ ] 8.4 [FE] (А) Страница аудита и trace watermark в админке
-- [ ] 8.5 [SEC] (А) Тесты TC-AUD-02..03, TC-LEAK-03, retention-сценарии
+- [ ] 8.4 [FE] (Д) Страница аудита и trace watermark в админке
+- [ ] 8.5 [SEC] (Д) Тесты TC-AUD-02..03, TC-LEAK-03, retention-сценарии
 
 ## 9. CI/CD (Н2–Н4, параллельно)
 - [ ] 9.1 [OPS] (А) Pipeline: lint (ruff, eslint), `lint-imports` (архитектурные контракты бэкенда), тесты (pytest, vitest), Semgrep, Bandit, pip-audit, npm audit, gitleaks, Trivy, Syft SBOM
