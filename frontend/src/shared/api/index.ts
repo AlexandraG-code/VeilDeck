@@ -1,2 +1,2 @@
 export { apiClient, axiosInstance } from './client';
-export { UNAUTHORIZED_STATUS, getApiErrorStatus } from './errors';
+export { NOT_FOUND_STATUS, UNAUTHORIZED_STATUS, getApiErrorStatus } from './errors';

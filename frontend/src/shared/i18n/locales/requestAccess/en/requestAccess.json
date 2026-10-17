@@ -1,0 +1,22 @@
+{
+  "title": "Request extended access",
+  "intro": "A staff member reviews the request. If approved, you receive a one-time link valid for a limited time; viewing is watermarked and logged.",
+  "fields": {
+    "email": "E-mail",
+    "displayName": "Name or alias",
+    "purpose": "Purpose of the request",
+    "consent": "I consent to processing of the synthetic request data for the retention period"
+  },
+  "validation": {
+    "required": "Required field",
+    "email": "Enter a valid e-mail",
+    "displayName": "Letters, digits, space and hyphen only",
+    "consent": "Consent is required to submit the request"
+  },
+  "submit": "Send request",
+  "received": {
+    "title": "Request received",
+    "subtitle": "If the request is approved, a link will be sent to the e-mail you provided.",
+    "back": "Back to catalog"
+  }
+}

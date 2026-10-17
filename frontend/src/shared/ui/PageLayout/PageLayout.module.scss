@@ -1,0 +1,32 @@
+@use '@shared/styles' as *;
+
+.root {
+  min-height: 100vh;
+}
+
+.header {
+  padding: rem(16) rem(24);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.brand {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.content {
+  max-width: rem(1040);
+  margin: 0 auto;
+  padding: rem(24) rem(16);
+}
+
+.title {
+  margin: 0 0 rem(8);
+}
+
+.subtitle {
+  margin: 0 0 rem(24);
+  color: var(--color-muted);
+}

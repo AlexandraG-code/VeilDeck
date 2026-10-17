@@ -1,0 +1,13 @@
+@use '@shared/styles' as *;
+
+.honeypot {
+  position: absolute;
+  left: rem(-10000);
+  width: rem(1);
+  height: rem(1);
+  overflow: hidden;
+}
+
+.intro {
+  color: var(--color-muted);
+}

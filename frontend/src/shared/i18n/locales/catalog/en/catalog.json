@@ -1,0 +1,53 @@
+{
+  "title": "Opportunities catalog",
+  "subtitle": "Anonymised corporate opportunity teasers. Extended details are disclosed only after a request is approved.",
+  "filters": {
+    "industry": "Industry",
+    "region": "Region",
+    "dealType": "Deal type",
+    "all": "All",
+    "reset": "Reset filters"
+  },
+  "empty": "No cards match the selected filters",
+  "loadFailed": "Failed to load the catalog",
+  "open": "Details",
+  "published": "Published {{date}}",
+  "notFound": "The card was not found or is unavailable",
+  "back": "Back to catalog",
+  "attributes": {
+    "industry": "Industry",
+    "region": "Region",
+    "dealType": "Deal type",
+    "size": "Size",
+    "revenue": "Revenue"
+  },
+  "enums": {
+    "industry": {
+      "manufacturing": "Manufacturing",
+      "logistics": "Logistics",
+      "technology": "Technology",
+      "services": "Services"
+    },
+    "region": {
+      "europe": "Europe",
+      "asia": "Asia",
+      "middle_east": "Middle East",
+      "other": "Other"
+    },
+    "dealType": {
+      "equity": "Equity stake",
+      "asset": "Assets",
+      "partnership": "Partnership"
+    },
+    "size": {
+      "under_50": "under 50 employees",
+      "50_to_249": "50–249 employees",
+      "250_plus": "250+ employees"
+    },
+    "revenue": {
+      "under_10m": "under 10M",
+      "10m_to_50m": "10–50M",
+      "50m_plus": "50M+"
+    }
+  }
+}

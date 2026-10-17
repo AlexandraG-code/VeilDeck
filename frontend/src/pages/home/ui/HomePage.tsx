@@ -1,9 +1,18 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-/** Заглушка главной страницы; каталог teaser'ов добавляется в задаче 5.3. */
-export const HomePage: FC = () => {
-  const { t } = useTranslation();
+import { Namespace } from '@shared/i18n';
+import { PageLayout } from '@shared/ui';
 
-  return <h1>{t('appName')}</h1>;
+import { CatalogBrowser } from './CatalogBrowser';
+
+/** Главная: публичный каталог teaser-карточек. */
+export const HomePage: FC = () => {
+  const { t } = useTranslation(Namespace.Catalog);
+
+  return (
+    <PageLayout title={t('title')} subtitle={t('subtitle')}>
+      <CatalogBrowser />
+    </PageLayout>
+  );
 };

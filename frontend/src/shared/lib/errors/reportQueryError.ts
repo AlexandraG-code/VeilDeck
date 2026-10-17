@@ -3,18 +3,19 @@ import { isAxiosError } from 'axios';
 import { useErrorStore } from './store';
 
 const UNAUTHORIZED = 401;
+const NOT_FOUND = 404;
 const FORBIDDEN = 403;
 const TOO_MANY_REQUESTS = 429;
 let nextId = 1;
 
 /**
- * Приводит ошибку запроса к ключу i18n и кладёт в стор. 401 не показывается: на него реагируют guards.
+ * Приводит ошибку запроса к ключу i18n и кладёт в стор. 401 и 404 не показываются: на них реагируют guards и страницы.
  * @param error ошибка из QueryCache/MutationCache
  */
 export const reportQueryError = (error: unknown): void => {
   const status = isAxiosError(error) ? error.response?.status : undefined;
 
-  if (status === UNAUTHORIZED) {
+  if (status === UNAUTHORIZED || status === NOT_FOUND) {
     return;
   }
 

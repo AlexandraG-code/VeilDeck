@@ -1,0 +1,17 @@
+@use '@shared/styles' as *;
+
+.card {
+  height: 100%;
+}
+
+.text {
+  margin: rem(12) 0;
+  color: var(--color-text);
+}
+
+.meta {
+  display: block;
+  margin-top: rem(12);
+  color: var(--color-muted);
+  font-size: rem(13);
+}
