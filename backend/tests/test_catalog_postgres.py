@@ -3,6 +3,7 @@
 import asyncio
 import os
 import subprocess
+import tempfile
 import sys
 from pathlib import Path
 from uuid import uuid4
@@ -35,6 +36,7 @@ def run_script(module):
         **os.environ,
         "MIGRATION_DATABASE_URL": os.environ["TEST_DATABASE_OWNER_URL"],
         "APP_RW_PASSWORD": os.environ["TEST_APP_RW_PASSWORD"],
+        "MATERIALS_DIR": tempfile.gettempdir() + "/veildeck-test-materials",  # /data/materials на раннере недоступен
     }
     subprocess.run([sys.executable, "-m", module], env=environment, cwd=BACKEND, check=True, capture_output=True)  # noqa: S603 — только модули из тестового кода
 
