@@ -53,9 +53,9 @@ down:
 migrate:
 	docker compose -f deploy/docker-compose.yml --env-file .env run --rm db-init
 
-# Только синтетические карточки; PDF и staff-аккаунты — оставшаяся часть задачи 4.4.
+# Только синтетика: карточки, PDF, staff (пароли и TOTP в консоль), запросы, grant, одноразовая ссылка (задача 4.4).
 seed: migrate
-	docker compose -f deploy/docker-compose.yml --env-file .env run --rm db-init python -m scripts.seed_catalog
+	docker compose -f deploy/docker-compose.yml --env-file .env --profile tools run --rm seed
 
 retention-run:
 	@echo "TODO: задача 8.2 (NOW_OFFSET=$(NOW_OFFSET))"
